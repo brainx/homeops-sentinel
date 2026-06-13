@@ -7,7 +7,7 @@ services:
       APP_PORT: 4747
 
   web:
-    image: ghcr.io/brainx/homeops-sentinel-umbrel:0.1.0@sha256:08f250856e98f6ad130d6beec2b0244283b9ba7ce746be6600686cebf31d60a8
+    image: ghcr.io/brainx/homeops-sentinel-umbrel:0.1.0@sha256:78baddeadde8247b36c9691ae17e72abbd1e87cf58a083fa1922ca432c0bdb94
     restart: on-failure
     stop_grace_period: 20s
     environment:

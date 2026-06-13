@@ -65,25 +65,26 @@ docker buildx imagetools inspect ghcr.io/<owner>/homeops-sentinel-umbrel:0.1.0
 
 Current package digest evidence:
 
-The package currently points at the last published digest below. If any source,
-dependency, workflow, or package file changes are included in a release, run the
-manual publish workflow again and replace this evidence with the new digest and
-workflow output before submitting the package.
+The package currently points at the last published digest below. Documentation
+and Umbrel package files are excluded from the Docker build context. If runtime
+source, dependency, Dockerfile, or image workflow changes are included in a
+release, run the manual publish workflow again and replace this evidence with
+the new digest and workflow output before submitting the package.
 
 | Evidence | Value |
 | --- | --- |
-| Source ref | Image built from `c6fd4a5` in GitHub Actions run `27467888491` |
+| Source ref | Image built from `05d2eda` in GitHub Actions run `27475828479` |
 | App version | `0.1.0` |
-| Image digest | `sha256:08f250856e98f6ad130d6beec2b0244283b9ba7ce746be6600686cebf31d60a8` |
+| Image digest | `sha256:78baddeadde8247b36c9691ae17e72abbd1e87cf58a083fa1922ca432c0bdb94` |
 | Image platforms | `linux/amd64`, `linux/arm64` |
-| Build workflow or command | GitHub Actions run `27467888491` |
-| Image SBOM/provenance | BuildKit registry SBOM/provenance enabled in run `27467888491` |
-| Image signature | Required from the next manual publish workflow run after cosign signing was added |
+| Build workflow or command | GitHub Actions run `27475828479` |
+| Image SBOM/provenance | BuildKit registry SBOM/provenance enabled in run `27475828479` |
+| Image signature | Keyless cosign signature published through GitHub OIDC in run `27475828479` |
 | Tested environment | Local Docker Desktop; GitHub Actions `ubuntu-latest` |
 | Test date | `2026-06-13` |
-| `npm run check` | Passed locally and in GitHub Actions run `27467888491` |
-| `npm audit --omit=dev --audit-level=high` | Passed locally and in GitHub Actions run `27467888491` |
-| `npm run smoke:docker` | Passed locally and in GitHub Actions run `27467888491` |
+| `npm run check` | Passed locally and in GitHub Actions run `27475828479` |
+| `npm audit --omit=dev --audit-level=high` | Passed locally and in GitHub Actions run `27475828479` |
+| `npm run smoke:docker` | Passed locally and in GitHub Actions run `27475828479` |
 | `npm run check:release` | Passed locally on `2026-06-13` |
 | Persistence restart result | Passed locally in `npm run smoke:docker`; state survived container restart |
 | Screenshot files | `1.png`, `2.png`, `3.png` |
@@ -94,8 +95,8 @@ workflow output before submitting the package.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Local production | Passed via `npm run smoke` | Passed | N/A | Static/API smoke passed | Heartbeat token secrecy passed | Not separately exercised | Not separately exercised | Temporary data write passed | Same-origin mutation guard passed |
 | Docker Compose | Passed via `docker compose config` | Compose valid | No public ports configured | Not separately exercised | Persistent `/data` mount configured | Not separately exercised | Not separately exercised | Persistent volume configured | Package check passed |
-| `linux/amd64` image | Built in run `27467888491` | Docker smoke passed in workflow | No public ports configured | Docker smoke covered startup | Docker smoke covered persistence | Not separately exercised | Not separately exercised | Restart persistence passed locally | Package check passed |
-| `linux/arm64` image | Built in run `27467888491` | Build completed | No public ports configured | Build completed | Persistent `/data` mount configured | Not separately exercised | Not separately exercised | Image manifest published | Package check passed |
+| `linux/amd64` image | Built in run `27475828479` | Docker smoke passed in workflow | No public ports configured | Docker smoke covered startup | Docker smoke covered persistence | Not separately exercised | Not separately exercised | Restart persistence passed locally | Package check passed |
+| `linux/arm64` image | Built in run `27475828479` | Build completed | No public ports configured | Build completed | Persistent `/data` mount configured | Not separately exercised | Not separately exercised | Image manifest published | Package check passed |
 | Umbrel-compatible environment | Package structure checked | Health endpoint configured | App proxy service configured | Validation guide covers manual proof | Validation guide covers manual proof | Validation guide covers manual proof | Validation guide covers manual proof | Validation guide covers manual proof | Package check passed |
 
 ## Operational Notes

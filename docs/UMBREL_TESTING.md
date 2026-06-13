@@ -12,18 +12,18 @@ only after the live checklist has been completed on that environment.
 | Field | Value |
 | --- | --- |
 | Image | `ghcr.io/brainx/homeops-sentinel-umbrel:0.1.0` |
-| Digest | `sha256:08f250856e98f6ad130d6beec2b0244283b9ba7ce746be6600686cebf31d60a8` |
+| Digest | `sha256:78baddeadde8247b36c9691ae17e72abbd1e87cf58a083fa1922ca432c0bdb94` |
 | Platforms | `linux/amd64`, `linux/arm64` |
-| Build run | GitHub Actions run `27467888491` |
+| Build run | GitHub Actions run `27475828479` |
 | SBOM/provenance | BuildKit registry attestations enabled |
-| Signature | Required from the next manual publish workflow run after cosign signing was added |
+| Signature | Keyless cosign signature published through GitHub OIDC |
 
 ## Tested Platforms
 
 | Platform | Result | Evidence |
 | --- | --- | --- |
 | Local Docker Desktop | PASS | `npm run smoke:docker` passed on 2026-06-13 |
-| GitHub Actions `ubuntu-latest` | PASS | Publish workflow run `27467888491` passed checks, image build, and published-image Trivy scan |
+| GitHub Actions `ubuntu-latest` | PASS | Publish workflow run `27475828479` passed checks, image build, published-image Trivy scan, and cosign signing |
 | `linux/amd64` image | PASS | Multi-arch manifest includes `linux/amd64`; Docker smoke passed |
 | `linux/arm64` image | PASS | Multi-arch manifest includes `linux/arm64` |
 | umbrelOS on Raspberry Pi / ARM64 | Pending live evidence | Hardware validation has not been recorded in this release log |
