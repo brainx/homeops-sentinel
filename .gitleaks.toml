@@ -1,0 +1,4 @@
+title = "HomeOps Sentinel secret scan"
+
+[extend]
+useDefault = true

@@ -1,0 +1,55 @@
+{
+  "name": "homeops-sentinel",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "A self-hosted home server readiness dashboard packaged for Umbrel.",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "test": "node tests/store.test.mjs && node tests/monitor.test.mjs && node tests/security.test.mjs",
+    "lint": "npm run lint:eslint && npm run lint:repo",
+    "lint:eslint": "eslint . --max-warnings=0",
+    "lint:repo": "node scripts/lint.mjs",
+    "format": "prettier --write \"{src,server,scripts,tests}/**/*.{js,mjs,ts,tsx,css}\" \"*.{js,json,ts,html}\"",
+    "format:check": "prettier --check \"{src,server,scripts,tests}/**/*.{js,mjs,ts,tsx,css}\" \"*.{js,json,ts,html}\"",
+    "typecheck": "tsc --noEmit --pretty false",
+    "test:coverage": "c8 --temp-directory .npm-cache/c8 --check-coverage --lines 85 --branches 80 --functions 85 --reporter=text --reporter=lcov npm test",
+    "test:e2e": "playwright test tests/e2e",
+    "test:a11y": "playwright test tests/a11y",
+    "smoke": "node scripts/smoke-local.mjs",
+    "smoke:docker": "node scripts/smoke-docker.mjs",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run build && npm run smoke && npm run test:e2e && npm run test:a11y",
+    "release:status": "node scripts/release-status.mjs",
+    "check:github-release": "node scripts/check-github-release.mjs",
+    "check:release": "node scripts/check-release.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
+    "@eslint/js": "^9.39.4",
+    "@playwright/test": "^1.60.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "c8": "^6.0.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.6.0",
+    "playwright": "^1.60.0",
+    "prettier": "^3.8.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.61.0",
+    "vite": "^8.0.16"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

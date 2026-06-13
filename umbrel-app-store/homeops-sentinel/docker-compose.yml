@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: homeops-sentinel_web_1
+      APP_PORT: 4747
+
+  web:
+    image: ghcr.io/brainx/homeops-sentinel-umbrel:0.1.0@sha256:08f250856e98f6ad130d6beec2b0244283b9ba7ce746be6600686cebf31d60a8
+    restart: on-failure
+    stop_grace_period: 20s
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4747
+      HOMEOPS_DATA_DIR: /data
+      HOMEOPS_STATIC_DIR: /app/dist
+      APP_SEED: ${APP_SEED}
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true

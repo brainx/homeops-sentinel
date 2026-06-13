@@ -1,0 +1,32 @@
+services:
+  homeops-sentinel:
+    build: .
+    restart: unless-stopped
+    stop_grace_period: 20s
+    ports:
+      - "127.0.0.1:4747:4747"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4747
+      HOMEOPS_DATA_DIR: /data
+      HOMEOPS_STATIC_DIR: /app/dist
+      HOMEOPS_SECRET_KEY: ${HOMEOPS_SECRET_KEY:-}
+    volumes:
+      - ./data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4747/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

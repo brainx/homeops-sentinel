@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="HomeOps Sentinel">
+  <rect width="256" height="256" rx="0" fill="#050706"/>
+  <path d="M56 119 128 58l72 61v78c0 14.36-11.64 26-26 26H82c-14.36 0-26-11.64-26-26v-78Z" fill="#0b100e" stroke="#31d88a" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M88 155h24l15-43 20 81 15-38h26" fill="none" stroke="#f4fff8" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="195" cy="68" r="24" fill="#31d88a"/>
+  <circle cx="195" cy="68" r="10" fill="#02100a"/>
+</svg>

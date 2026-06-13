@@ -1,0 +1,25 @@
+manifestVersion: 1
+id: homeops-sentinel
+category: networking
+name: HomeOps Sentinel
+version: "0.1.0"
+tagline: Private readiness checks for your home server
+description: >-
+  HomeOps Sentinel is a focused operations dashboard for self-hosters who run important
+  services from Umbrel. It monitors HTTP, TCP, DNS, and TLS targets, tracks backup
+  freshness, keeps a private incident log, and can notify a webhook when a check changes
+  state. The app stores its state locally, does not require Docker socket access, and is
+  designed for small home-server environments where quick operational awareness matters.
+developer: brainx
+website: https://github.com/brainx/homeops-sentinel
+dependencies: []
+repo: https://github.com/brainx/homeops-sentinel
+support: https://github.com/brainx/homeops-sentinel/issues
+port: 4747
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: ""
+submitter: brainx
+submission: ""
