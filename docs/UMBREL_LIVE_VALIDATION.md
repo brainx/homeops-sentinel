@@ -8,7 +8,7 @@ hardware validation unless you complete the checks on your own Umbrel host.
 Pinned app image:
 
 ```text
-ghcr.io/brainx/homeops-sentinel-umbrel:0.1.0@sha256:78baddeadde8247b36c9691ae17e72abbd1e87cf58a083fa1922ca432c0bdb94
+ghcr.io/brainx/homeops-sentinel-umbrel:0.2.0@sha256:931c64accb43a39bf5a93eac2859a1bbcc8c5802a2cccde2fbbff794be6dded4
 ```
 
 ## Evidence Table
@@ -55,7 +55,7 @@ docker image inspect "$IMAGE_ID" --format '{{json .RepoDigests}}'
 Expected result: the output includes:
 
 ```text
-ghcr.io/brainx/homeops-sentinel-umbrel@sha256:78baddeadde8247b36c9691ae17e72abbd1e87cf58a083fa1922ca432c0bdb94
+ghcr.io/brainx/homeops-sentinel-umbrel@sha256:931c64accb43a39bf5a93eac2859a1bbcc8c5802a2cccde2fbbff794be6dded4
 ```
 
 If Umbrel uses a different container name, replace `homeops-sentinel_web_1` with

@@ -11,10 +11,10 @@ only after the live checklist has been completed on that environment.
 
 | Field | Value |
 | --- | --- |
-| Image | `ghcr.io/brainx/homeops-sentinel-umbrel:0.1.0` |
-| Digest | `sha256:78baddeadde8247b36c9691ae17e72abbd1e87cf58a083fa1922ca432c0bdb94` |
+| Image | `ghcr.io/brainx/homeops-sentinel-umbrel:0.2.0` |
+| Digest | `sha256:931c64accb43a39bf5a93eac2859a1bbcc8c5802a2cccde2fbbff794be6dded4` |
 | Platforms | `linux/amd64`, `linux/arm64` |
-| Build run | GitHub Actions run `27475828479` |
+| Build run | GitHub Actions run `29706123994` |
 | SBOM/provenance | BuildKit registry attestations enabled |
 | Signature | Keyless cosign signature published through GitHub OIDC |
 
@@ -22,10 +22,10 @@ only after the live checklist has been completed on that environment.
 
 | Platform | Result | Evidence |
 | --- | --- | --- |
-| Local Docker Desktop | PASS | `npm run smoke:docker` passed on 2026-06-13 |
-| GitHub Actions `ubuntu-latest` | PASS | Publish workflow run `27475828479` passed checks, image build, published-image Trivy scan, and cosign signing |
+| Local Apple Container 1.0.0 on ARM64 | PASS | Exact published digest pulled and started with a read-only root; health returned `0.2.0`; PID 1 ran as UID/GID 1000. A same-source local image also preserved state across a volume-backed restart on 2026-07-20 |
+| GitHub Actions `ubuntu-latest` | PASS | Publish workflow run `29706123994` passed checks, Docker restart persistence, multi-architecture image build, published-image Trivy scan, and cosign signing |
 | `linux/amd64` image | PASS | Multi-arch manifest includes `linux/amd64`; Docker smoke passed |
-| `linux/arm64` image | PASS | Multi-arch manifest includes `linux/arm64` |
+| `linux/arm64` image | PASS | Multi-arch manifest includes `linux/arm64`; the Dockerfile also built and ran locally with Apple Container |
 | umbrelOS on Raspberry Pi / ARM64 | Pending live evidence | Hardware validation has not been recorded in this release log |
 | umbrelOS on x86 VM | Pending live evidence | VM validation has not been recorded in this release log |
 | Umbrel Home | Pending live evidence | Optional approval evidence |
@@ -45,7 +45,7 @@ only after the live checklist has been completed on that environment.
 | Restore-test evidence | PASS | Covered by unit tests and UI flow |
 | Incident note persists | PASS | Covered by Docker restart persistence smoke |
 | Webhook secret storage | PASS | Encrypted at rest and masked in `/api/state` |
-| Restart app | PASS | `npm run smoke:docker` verifies state survives container restart |
+| Restart app | PASS | GitHub Actions Docker smoke and the local Apple Container check both verified state survives container restart |
 | Reboot host | Pending live evidence | Requires Umbrel device or VM |
 | Uninstall/reinstall | Pending live evidence | Expected to discard app data per Umbrel behavior |
 | ARM64 pull | PASS | Published manifest includes ARM64 |

@@ -73,30 +73,30 @@ the new digest and workflow output before submitting the package.
 
 | Evidence | Value |
 | --- | --- |
-| Source ref | Image built from `05d2eda` in GitHub Actions run `27475828479` |
-| App version | `0.1.0` |
-| Image digest | `sha256:78baddeadde8247b36c9691ae17e72abbd1e87cf58a083fa1922ca432c0bdb94` |
+| Source ref | Image built from `36118c4` in GitHub Actions run `29706123994` |
+| App version | `0.2.0` |
+| Image digest | `sha256:931c64accb43a39bf5a93eac2859a1bbcc8c5802a2cccde2fbbff794be6dded4` |
 | Image platforms | `linux/amd64`, `linux/arm64` |
-| Build workflow or command | GitHub Actions run `27475828479` |
-| Image SBOM/provenance | BuildKit registry SBOM/provenance enabled in run `27475828479` |
-| Image signature | Keyless cosign signature published through GitHub OIDC in run `27475828479` |
-| Tested environment | Local Docker Desktop; GitHub Actions `ubuntu-latest` |
-| Test date | `2026-06-13` |
-| `npm run check` | Passed locally and in GitHub Actions run `27475828479` |
-| `npm audit --omit=dev --audit-level=high` | Passed locally and in GitHub Actions run `27475828479` |
-| `npm run smoke:docker` | Passed locally and in GitHub Actions run `27475828479` |
-| `npm run check:release` | Passed locally on `2026-06-13` |
-| Persistence restart result | Passed locally in `npm run smoke:docker`; state survived container restart |
-| Screenshot files | `1.png`, `2.png`, `3.png` |
+| Build workflow or command | GitHub Actions run `29706123994` |
+| Image SBOM/provenance | BuildKit registry SBOM/provenance enabled in run `29706123994` |
+| Image signature | Keyless cosign signature published through GitHub OIDC in run `29706123994` |
+| Tested environment | Exact published digest on Apple Container 1.0.0 ARM64; GitHub Actions `ubuntu-latest` with Docker |
+| Test date | `2026-07-20` |
+| `npm run check` | Passed locally and in GitHub Actions run `29706123994` |
+| `npm audit --omit=dev --audit-level=high` | Passed locally and in GitHub Actions run `29706123994` |
+| `npm run smoke:docker` | Passed in GitHub Actions run `29706123994`; equivalent startup and restart persistence also passed locally with Apple Container |
+| `npm run check:release` | Passed locally on `2026-07-20` |
+| Persistence restart result | Passed in GitHub Actions Docker smoke and in a local Apple Container volume restart |
+| Screenshot files | `1.png` (`95c22608...d31d53`), `2.png` (`11d40444...f2260`), `3.png` (`1118417f...980aa`) |
 
 ## QA Matrix
 
 | Environment | Install/start | `/api/health` | App proxy/no public ports | Monitors | Backups | Alerts | Incidents | Persistence | Unsafe URL blocking |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Local production | Passed via `npm run smoke` | Passed | N/A | Static/API smoke passed | Heartbeat token secrecy passed | Not separately exercised | Not separately exercised | Temporary data write passed | Same-origin mutation guard passed |
-| Docker Compose | Passed via `docker compose config` | Compose valid | No public ports configured | Not separately exercised | Persistent `/data` mount configured | Not separately exercised | Not separately exercised | Persistent volume configured | Package check passed |
-| `linux/amd64` image | Built in run `27475828479` | Docker smoke passed in workflow | No public ports configured | Docker smoke covered startup | Docker smoke covered persistence | Not separately exercised | Not separately exercised | Restart persistence passed locally | Package check passed |
-| `linux/arm64` image | Built in run `27475828479` | Build completed | No public ports configured | Build completed | Persistent `/data` mount configured | Not separately exercised | Not separately exercised | Image manifest published | Package check passed |
+| Docker Compose | Passed in GitHub Actions Docker smoke | Compose valid | No public ports configured | Not separately exercised | Persistent `/data` mount configured | Not separately exercised | Not separately exercised | Persistent volume configured | Package check passed |
+| `linux/amd64` image | Built in run `29706123994` | Docker smoke passed in workflow | No public ports configured | Docker smoke covered startup | Docker smoke covered persistence | Not separately exercised | Not separately exercised | Docker restart persistence passed | Package check passed |
+| `linux/arm64` image | Built in run `29706123994` and locally with Apple Container | Health endpoint passed locally | No public ports configured | Local runtime startup passed | Persistent `/data` volume passed locally | Not separately exercised | Not separately exercised | Apple Container restart persistence passed | Package check passed |
 | Umbrel-compatible environment | Package structure checked | Health endpoint configured | App proxy service configured | Validation guide covers manual proof | Validation guide covers manual proof | Validation guide covers manual proof | Validation guide covers manual proof | Validation guide covers manual proof | Package check passed |
 
 ## Operational Notes
