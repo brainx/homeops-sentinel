@@ -2,7 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 export const APP_NAME = "HomeOps Sentinel";
-export const APP_VERSION = "0.1.0";
+export const APP_VERSION = JSON.parse(
+  fs.readFileSync(new URL("../package.json", import.meta.url), "utf8")
+).version;
 
 export function getConfig() {
   const port = Number.parseInt(process.env.PORT || "4747", 10);

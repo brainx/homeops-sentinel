@@ -39,6 +39,13 @@ export function createMonitor(body: unknown) {
   });
 }
 
+export function updateMonitor(id: string, body: unknown) {
+  return request<AppState>(`/api/monitors/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body)
+  });
+}
+
 export function deleteMonitor(id: string) {
   return request<AppState>(`/api/monitors/${id}`, { method: "DELETE" });
 }

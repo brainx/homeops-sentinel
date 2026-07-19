@@ -10,7 +10,7 @@ This repository includes an Umbrel app package under `umbrel-app-store/homeops-s
 - `exports.sh`
 - `gallery/` with numbered `1440x900` PNG screenshots
 
-The initial manifest keeps `gallery: []`, `releaseNotes: ""`, and `submission: ""` because screenshots, release notes, and the submission PR URL are handled outside the manifest for the first package handoff.
+The manifest keeps `gallery: []`, `releaseNotes: ""`, and `submission: ""` until screenshots, release notes, and a real submission pull-request URL are supplied through the Umbrel app-store process.
 
 ## Release Requirements
 
@@ -49,7 +49,7 @@ Manual build equivalent:
 ```sh
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  --tag ghcr.io/<owner>/homeops-sentinel-umbrel:0.1.0 \
+  --tag ghcr.io/<owner>/homeops-sentinel-umbrel:<version> \
   --attest type=provenance,mode=max \
   --attest type=sbom \
   --push .
@@ -58,7 +58,7 @@ docker buildx build \
 Inspect the digest before updating the package:
 
 ```sh
-docker buildx imagetools inspect ghcr.io/<owner>/homeops-sentinel-umbrel:0.1.0
+docker buildx imagetools inspect ghcr.io/<owner>/homeops-sentinel-umbrel:<version>
 ```
 
 ## Release Evidence

@@ -24,6 +24,14 @@ export interface MonitorResult {
   checkedAt: string;
 }
 
+export interface MonitorMetrics {
+  totalChecks: number;
+  healthyChecks: number;
+  availabilityPercent: number | null;
+  averageLatencyMs: number | null;
+  lastFailureAt: string | null;
+}
+
 export interface Backup {
   id: string;
   name: string;
@@ -96,10 +104,14 @@ export interface AppState {
   backups: Backup[];
   incidents: Incident[];
   results: Record<string, MonitorResult>;
+  monitorHistory: Record<string, MonitorResult[]>;
+  monitorMetrics: Record<string, MonitorMetrics>;
   alertEvents: AlertEvent[];
   summary: {
     overall: HealthStatus;
     monitors: number;
+    enabledMonitors: number;
+    pausedMonitors: number;
     backups: number;
     counts: {
       healthy: number;

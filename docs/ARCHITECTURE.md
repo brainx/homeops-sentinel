@@ -17,6 +17,7 @@ home-server deployments.
 | --- | --- |
 | `server/index.js` | HTTP server, API routes, static file serving, scheduler |
 | `server/monitors.js` | HTTP, TCP, DNS, TLS, backup, and restore-test health logic |
+| `server/history.js` | Bounded monitor-result history, sanitization, and reliability metrics |
 | `server/store.js` | Atomic JSON persistence and corrupt-state recovery |
 | `server/secrets.js` | Webhook encryption and masked public metadata |
 | `server/heartbeats.js` | Backup heartbeat token generation, hashing, and verification |
@@ -35,6 +36,11 @@ home-server deployments.
 
 State is stored in `homeops-sentinel.json` with atomic write-and-rename semantics. Secret material is
 stored separately in `.homeops-secret` unless Umbrel provides `APP_SEED`.
+
+Monitor results are appended to a bounded 720-entry history per monitor. Reliability metrics are
+derived from that retained history, while public state returns only the latest 48 entries per monitor
+to keep dashboard refreshes small. Paused monitors retain history and their latest result but are
+excluded from active health counts.
 
 The Docker smoke test verifies that:
 

@@ -11,8 +11,9 @@ const store = new JsonStore(file);
 
 await store.ensure();
 const initial = await store.read();
-assert.equal(initial.schemaVersion, 1);
+assert.equal(initial.schemaVersion, 2);
 assert.deepEqual(initial.monitors, []);
+assert.deepEqual(initial.monitorHistory, {});
 
 const id = createId("mon");
 await store.update((state) => {
@@ -45,13 +46,14 @@ await fs.writeFile(
     backups: {},
     incidents: null,
     results: null,
+    monitorHistory: "bad",
     alertLedger: null,
     alertEvents: "bad"
   }),
   { mode: 0o600 }
 );
 const normalizedInvalidState = await store.read();
-assert.equal(normalizedInvalidState.schemaVersion, 1);
+assert.equal(normalizedInvalidState.schemaVersion, 2);
 assert.deepEqual(normalizedInvalidState.settings, {
   checkIntervalSeconds: 300,
   notifyOnRecovery: true,
@@ -61,12 +63,13 @@ assert.deepEqual(normalizedInvalidState.monitors, []);
 assert.deepEqual(normalizedInvalidState.backups, []);
 assert.deepEqual(normalizedInvalidState.incidents, []);
 assert.deepEqual(normalizedInvalidState.results, {});
+assert.deepEqual(normalizedInvalidState.monitorHistory, {});
 assert.deepEqual(normalizedInvalidState.alertLedger, {});
 assert.deepEqual(normalizedInvalidState.alertEvents, []);
 
 await fs.writeFile(file, "{bad json", { mode: 0o600 });
 const recovered = await store.read();
-assert.equal(recovered.schemaVersion, 1);
+assert.equal(recovered.schemaVersion, 2);
 assert.deepEqual(recovered.monitors, []);
 assert.equal(store.lastRecovery?.corruptPath.startsWith("state.json.corrupt."), true);
 assert.match(store.lastRecovery?.reason || "", /JSON/);
@@ -77,7 +80,7 @@ assert.ok(corruptFile);
 assert.equal(await fs.readFile(path.join(dir, corruptFile), "utf8"), "{bad json");
 
 const repaired = JSON.parse(await fs.readFile(file, "utf8"));
-assert.equal(repaired.schemaVersion, 1);
+assert.equal(repaired.schemaVersion, 2);
 assert.deepEqual(repaired.monitors, []);
 
 const originalEnv = { ...process.env };

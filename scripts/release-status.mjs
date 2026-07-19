@@ -156,16 +156,6 @@ check(
     !osvWorkflow.includes("upload-sarif"),
   "OSV workflow must run without SARIF/code-scanning upload requirements"
 );
-check(
-  "CodeQL workflow intentionally absent",
-  !fs.existsSync(".github/workflows/codeql.yml"),
-  "CodeQL workflow is unsupported for this private repo and should be absent"
-);
-check(
-  "Dependabot config intentionally absent",
-  !fs.existsSync(".github/dependabot.yml"),
-  "Dependabot config would create bot branch noise and should be absent"
-);
 const ghStatus = spawnSync("gh", ["auth", "status"], { encoding: "utf8" });
 if (ghStatus.status === 0) {
   complete.push("GitHub CLI is authenticated");

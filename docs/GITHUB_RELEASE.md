@@ -1,71 +1,41 @@
-# GitHub Main Release Runbook
+# Release Process
 
-This runbook prepares HomeOps Sentinel for a public GitHub `main` release without assuming a repository owner or publishing credentials.
+This process publishes HomeOps Sentinel from `main` and keeps the source tag, GHCR image, and Umbrel package digest aligned.
 
-## Hard Blockers Before Release
+## Prepare The Source
 
-- Confirm the `LICENSE` file matches the license chosen by the project owner.
-- Keep `SECURITY.md` in the release tree.
-- Set repo-local Git identity before the first commit:
+1. Update the version in `package.json`, `package-lock.json`, and the Umbrel manifest.
+2. Add the changelog entry and `docs/RELEASE_NOTES_<version>.md`.
+3. Run the local quality and dependency gates:
 
-  ```sh
-  git config --local user.name "<name>"
-  git config --local user.email "<github-noreply-email-or-approved-email>"
-  ```
+   ```sh
+   npm run check
+   npm audit --omit=dev --audit-level=high
+   ```
 
-- Rename the default branch to `main` if it is still `master`.
-- Commit the full source tree and push `main` to the intended GitHub repository.
-- Confirm the manifest source, support, developer, and submitter fields match the final repository owner. Keep `submission: ""` until there is a real submission URL.
-- Publish a multi-architecture GHCR image and confirm the Umbrel package Compose file is pinned to its digest.
-- Confirm the publish workflow recorded BuildKit SBOM/provenance attestations for the final image digest.
-- Confirm the publish workflow recorded a keyless cosign signature and verification command for the final image digest.
-- Confirm CI, container scan, dependency review, secret scan, and OSV workflows are present.
-- Confirm all external GitHub Actions are SHA-pinned with adjacent tag comments.
-- If release source changes after publishing, publish a new image and replace the package digest. Do not reuse a digest built from discarded staging history.
+4. Review and push the source commit to `main`.
 
-## Local Preflight
+## Publish And Pin The Image
 
-Run:
+1. Dispatch `.github/workflows/publish-image.yml` from `main`.
+2. Confirm its checks, Docker smoke test, multi-architecture build, Trivy scan, and keyless cosign signing all pass.
+3. Download the `homeops-sentinel-image-digest` artifact.
+4. Pin the returned versioned digest in `umbrel-app-store/homeops-sentinel/docker-compose.yml`.
+5. Update the release evidence in `docs/UMBREL_PACKAGE.md`, `docs/UMBREL_TESTING.md`, and `docs/UMBREL_LIVE_VALIDATION.md`.
+
+The image must be rebuilt whenever runtime source, dependencies, the Dockerfile, or the publish workflow changes. Documentation and Umbrel package metadata are excluded from the Docker build context and may be updated after the image is published.
+
+## Final Preflight And Release
+
+Run the final gates from a clean, upstream-tracking `main` branch:
 
 ```sh
-npm run check
-npm audit --omit=dev --audit-level=high
-npm run smoke
-npm run smoke:docker
-npm run test:coverage
-npm run test:e2e
-npm run test:a11y
 npm run release:status
 npm run check:github-release
-```
-
-`release:status` summarizes completed release requirements and the remaining external blockers without changing the repository.
-
-`check:github-release` intentionally fails until Git identity, branch, license, upstream, and clean-tree requirements are satisfied.
-
-Run this package-specific gate after the image digest and final manifest URLs are set:
-
-```sh
 npm run check:release
 ```
 
-## First GitHub Release Sequence
-
-1. Configure repo-local Git identity.
-2. Choose and add a license.
-3. Rename the branch to `main`.
-4. Review pending files with `git status --short`.
-5. Stage and commit the complete project.
-6. Push `main` to GitHub.
-7. Run `.github/workflows/publish-image.yml` with manual dispatch to build and publish the GHCR image.
-8. Confirm the workflow completed successfully, including the Trivy scan and cosign signing of the published digest.
-9. Download the `homeops-sentinel-image-digest` workflow artifact.
-10. Record the image digest, SBOM/provenance signals, cosign signature signal, and cosign verification command from the workflow output.
-11. Confirm `umbrel-app-store/homeops-sentinel/docker-compose.yml` is pinned to the published digest.
-12. Fill the release evidence table in `docs/UMBREL_PACKAGE.md`.
-13. Run `npm run check`, `npm run check:github-release`, and `npm run check:release`.
-14. Create and push tag `v0.1.0`.
-15. Create the GitHub Release using `docs/RELEASE_NOTES_0.1.0.md`.
+Commit and push the digest handoff, then create and push `v<version>`. Publish the GitHub Release from `docs/RELEASE_NOTES_<version>.md` only after the tag resolves to the same commit as remote `main`.
 
 ## Release Evidence To Keep
 
@@ -90,4 +60,4 @@ npm run check:release
 
 ## Publication Safety
 
-Do not commit, tag, push, or create a GitHub Release if Git shows an automatically generated identity, a machine-local email address, or a dirty working tree. Fix repo-local identity first, then create or amend the release commit before publishing.
+Do not tag or publish with a dirty working tree, an unreviewed identity, a stale image digest, or failing release gates. Never reuse an image digest built from different runtime source.

@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { APP_VERSION } from "../server/config.js";
 
 const root = process.cwd();
 const port = await choosePort();
@@ -19,7 +20,7 @@ try {
   await startServer();
 
   const health = await getJson("/api/health");
-  assert.deepEqual(health, { status: "ok", version: "0.1.0" });
+  assert.deepEqual(health, { status: "ok", version: APP_VERSION });
 
   const rootResponse = await fetch(`${baseUrl}/`);
   assert.equal(rootResponse.status, 200);

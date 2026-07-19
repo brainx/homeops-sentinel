@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 - 2026-07-20
+
+- Added bounded per-monitor check history with availability, average latency, and recent-check timelines.
+- Added monitor editing plus pause and resume controls without discarding prior results or history.
+- Excluded paused monitors from active health counts while keeping an all-paused setup visibly degraded.
+- Migrated persisted state to schema version 2 with safe normalization for existing installations.
+- Expanded API, unit, end-to-end, and accessibility coverage for monitor history and lifecycle controls.
+
 ## 0.1.0 - Initial Release Candidate
 
 - Added HomeOps Sentinel dashboard for self-hosted readiness checks.

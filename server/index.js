@@ -11,6 +11,7 @@ import {
   verifyHeartbeatToken
 } from "./heartbeats.js";
 import { JsonStore, createId } from "./store.js";
+import { publicMonitorHistory, recordMonitorResult, summarizeMonitorHistory } from "./history.js";
 import { createSecretBox } from "./secrets.js";
 import { normalizeOutboundUrl, postJsonToSafeUrl } from "./network.js";
 import { assertRequestProvenance } from "./request-security.js";
@@ -85,6 +86,13 @@ async function readJsonBody(req) {
 
 function publicState(state) {
   const now = new Date();
+  const monitorHistory = {};
+  const monitorMetrics = {};
+  for (const monitor of state.monitors) {
+    const history = state.monitorHistory?.[monitor.id] || [];
+    monitorHistory[monitor.id] = publicMonitorHistory(history);
+    monitorMetrics[monitor.id] = summarizeMonitorHistory(history);
+  }
   return {
     app: {
       name: APP_NAME,
@@ -102,6 +110,8 @@ function publicState(state) {
     })),
     incidents: [...state.incidents].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     results: state.results,
+    monitorHistory,
+    monitorMetrics,
     alertEvents: (state.alertEvents || []).slice(0, 50),
     summary: summarizeState(state, now)
   };
@@ -326,6 +336,7 @@ async function handleApi(req, res, url) {
     const state = await store.update((current) => {
       current.monitors = current.monitors.filter((monitor) => monitor.id !== id);
       delete current.results[id];
+      delete current.monitorHistory[id];
       delete current.alertLedger[id];
       return current;
     });
@@ -347,7 +358,7 @@ async function handleApi(req, res, url) {
     }
     const result = await runMonitor(monitor);
     const state = await store.update((latest) => {
-      latest.results[id] = result;
+      recordMonitorResult(latest, id, result);
       return latest;
     });
     json(res, 200, publicState(state));
@@ -368,7 +379,7 @@ async function handleApi(req, res, url) {
     const state = await store.update((latest) => {
       for (const [id, result] of Object.entries(results)) {
         if (latest.monitors.some((monitor) => monitor.id === id)) {
-          latest.results[id] = result;
+          recordMonitorResult(latest, id, result);
         }
       }
       return latest;
@@ -765,7 +776,7 @@ async function schedulerTick() {
       const result = await runMonitor(monitor);
       await store.update(async (latest) => {
         const latestPrevious = latest.results[monitor.id];
-        latest.results[monitor.id] = result;
+        recordMonitorResult(latest, monitor.id, result);
         try {
           const delivery = await sendAlert(monitor, latestPrevious, result, latest);
           if (delivery) {

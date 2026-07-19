@@ -6,6 +6,7 @@ test("operator can configure readiness records and keep state after reload", asy
 }) => {
   const suffix = Date.now().toString(36);
   const monitorName = `Self health ${suffix}`;
+  const renamedMonitorName = `Sentinel health ${suffix}`;
   const backupName = `Nightly backup ${suffix}`;
   const incidentTitle = `Router maintenance ${suffix}`;
 
@@ -28,6 +29,25 @@ test("operator can configure readiness records and keep state after reload", asy
     .filter({ has: page.getByRole("cell", { name: monitorName, exact: true }) });
   await expect(monitorRow.getByText("Healthy")).toBeVisible();
   await expect(monitorRow.getByText(/\d+ms/)).toBeVisible();
+  await expect(monitorRow.getByText("100%", { exact: true })).toBeVisible();
+  await expect(monitorRow.getByText(/1 check · \d+ms avg/)).toBeVisible();
+
+  await page.getByRole("button", { name: `Edit ${monitorName}` }).click();
+  const monitorEditor = page.getByRole("dialog", { name: "Edit monitor" });
+  await expect(monitorEditor).toBeVisible();
+  await monitorEditor.getByLabel("Name").fill(renamedMonitorName);
+  await monitorEditor.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.getByRole("status")).toContainText("Monitor updated");
+  await expect(page.getByRole("cell", { name: renamedMonitorName, exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: `Pause ${renamedMonitorName}` }).click();
+  await expect(page.getByRole("status")).toContainText("Monitor paused");
+  const pausedMonitorRow = page
+    .getByRole("row")
+    .filter({ has: page.getByRole("cell", { name: renamedMonitorName, exact: true }) });
+  await expect(pausedMonitorRow.getByText("Paused", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: `Resume ${renamedMonitorName}` }).click();
+  await expect(page.getByRole("status")).toContainText("Monitor resumed");
 
   await page.getByRole("button", { name: "Backups", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Backup tracker", exact: true })).toBeVisible();
@@ -75,7 +95,10 @@ test("operator can configure readiness records and keep state after reload", asy
   await expect(page.getByText(incidentTitle)).toBeVisible();
 
   await page.getByRole("button", { name: "Monitors", exact: true }).click();
-  await expect(page.getByRole("cell", { name: monitorName, exact: true })).toBeVisible();
+  const persistedMonitor = page.getByRole("cell", { name: renamedMonitorName, exact: true });
+  await expect(persistedMonitor).toBeVisible();
+  const persistedMonitorRow = page.getByRole("row").filter({ has: persistedMonitor });
+  await expect(persistedMonitorRow.getByText("100%", { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Backups", exact: true }).click();
   await expect(page.getByText(backupName)).toBeVisible();

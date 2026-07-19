@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import http from "node:http";
 import { execFileSync, spawnSync } from "node:child_process";
+import { APP_VERSION } from "../server/config.js";
 
 const root = process.cwd();
 const suffix = `${process.pid}-${Date.now()}`;
@@ -66,7 +67,7 @@ try {
   assert.equal(uid, "1000");
 
   const health = await getJson("/api/health");
-  assert.deepEqual(health, { status: "ok", version: "0.1.0" });
+  assert.deepEqual(health, { status: "ok", version: APP_VERSION });
 
   const backupState = await postJson("/api/backups", {
     name: "Docker nightly",

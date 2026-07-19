@@ -4,6 +4,7 @@ import https from "node:https";
 import net from "node:net";
 import tls from "node:tls";
 import { performance } from "node:perf_hooks";
+import { APP_VERSION } from "./config.js";
 import { assertAllowedHost, createSafeLookup, normalizeOutboundUrl } from "./network.js";
 
 const MONITOR_TYPES = new Set(["http", "tcp", "dns", "tls"]);
@@ -334,7 +335,7 @@ async function checkHttp(monitor) {
         method: "GET",
         lookup: createSafeLookup(),
         headers: {
-          "user-agent": "HomeOps-Sentinel/0.1.0"
+          "user-agent": `HomeOps-Sentinel/${APP_VERSION}`
         }
       },
       (response) => {
@@ -434,7 +435,11 @@ function checkTls(monitor) {
 }
 
 export function summarizeState(state, now = new Date()) {
-  const monitorResults = Object.values(state.results || {});
+  const enabledMonitors = state.monitors.filter((monitor) => monitor.enabled !== false);
+  const pausedMonitors = state.monitors.length - enabledMonitors.length;
+  const monitorResults = enabledMonitors
+    .map((monitor) => state.results?.[monitor.id])
+    .filter(Boolean);
   const backupResults = state.backups.map((backup) => backupStatus(backup, now));
   const openIncidents = state.incidents.filter((incident) => !incident.resolvedAt);
   const allStatuses = [
@@ -446,13 +451,15 @@ export function summarizeState(state, now = new Date()) {
     healthy: allStatuses.filter((status) => status === "healthy").length,
     degraded: allStatuses.filter((status) => status === "degraded").length,
     down: allStatuses.filter((status) => status === "down").length,
-    unknown: state.monitors.length - monitorResults.length
+    unknown: Math.max(0, enabledMonitors.length - monitorResults.length)
   };
   const hasConfiguredChecks = state.monitors.length > 0 || state.backups.length > 0;
   const alertWebhookConfigured = Boolean(state.settings.alertWebhookEncrypted);
   const readiness = calculateReadiness({
     state,
     counts,
+    enabledMonitors,
+    pausedMonitors,
     hasConfiguredChecks,
     alertWebhookConfigured,
     openIncidents
@@ -463,10 +470,14 @@ export function summarizeState(state, now = new Date()) {
       ? "unknown"
       : counts.down > 0
         ? "down"
-        : counts.degraded > 0 || counts.unknown > 0
+        : state.monitors.length > 0 && enabledMonitors.length === 0
           ? "degraded"
-          : "healthy",
+          : counts.degraded > 0 || counts.unknown > 0
+            ? "degraded"
+            : "healthy",
     monitors: state.monitors.length,
+    enabledMonitors: enabledMonitors.length,
+    pausedMonitors,
     backups: state.backups.length,
     counts,
     alertWebhookConfigured,
@@ -477,22 +488,26 @@ export function summarizeState(state, now = new Date()) {
 function calculateReadiness({
   state,
   counts,
+  enabledMonitors,
+  pausedMonitors,
   hasConfiguredChecks,
   alertWebhookConfigured,
   openIncidents
 }) {
-  const monitorResults = state.monitors
+  const monitorResults = enabledMonitors
     .map((monitor) => state.results?.[monitor.id])
     .filter(Boolean);
-  const uncheckedMonitors = Math.max(0, state.monitors.length - monitorResults.length);
+  const uncheckedMonitors = Math.max(0, enabledMonitors.length - monitorResults.length);
   const monitorStatus =
     state.monitors.length === 0
       ? "unknown"
-      : monitorResults.some((result) => result.status === "down")
-        ? "down"
-        : monitorResults.some((result) => result.status === "degraded") || uncheckedMonitors > 0
-          ? "degraded"
-          : "healthy";
+      : enabledMonitors.length === 0
+        ? "degraded"
+        : monitorResults.some((result) => result.status === "down")
+          ? "down"
+          : monitorResults.some((result) => result.status === "degraded") || uncheckedMonitors > 0
+            ? "degraded"
+            : "healthy";
   const backupResults = state.backups.map((backup) => backupStatus(backup));
   const restoreResults = state.backups.map((backup) => restoreTestStatus(backup));
   const backupReadinessStatus =
@@ -506,6 +521,7 @@ function calculateReadiness({
   const restoreWarnings = restoreResults.filter((result) => result.status !== "healthy").length;
   let score = hasConfiguredChecks ? 100 : 35;
   if (state.monitors.length === 0) score -= 25;
+  if (state.monitors.length > 0 && enabledMonitors.length === 0) score -= 15;
   if (state.backups.length === 0) score -= 20;
   if (!alertWebhookConfigured) score -= 10;
   score -= Math.min(counts.down * 20, 40);
@@ -525,7 +541,11 @@ function calculateReadiness({
         message:
           state.monitors.length === 0
             ? "No service checks configured"
-            : `${state.monitors.length} monitor${state.monitors.length === 1 ? "" : "s"} configured`
+            : enabledMonitors.length === 0
+              ? "All service monitors are paused"
+              : pausedMonitors > 0
+                ? `${enabledMonitors.length} active, ${pausedMonitors} paused`
+                : `${enabledMonitors.length} monitor${enabledMonitors.length === 1 ? "" : "s"} active`
       },
       {
         id: "backups",

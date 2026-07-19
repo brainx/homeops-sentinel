@@ -24,7 +24,7 @@ curl -fsS http://homeops-sentinel_web_1:4747/api/health
 Expected output includes `status: "ok"` and the app version:
 
 ```json
-{"status":"ok","version":"0.1.0"}
+{"status":"ok","version":"0.2.0"}
 ```
 
 ## Core Flow

@@ -2,7 +2,7 @@ manifestVersion: 1
 id: homeops-sentinel
 category: networking
 name: HomeOps Sentinel
-version: "0.1.0"
+version: "0.2.0"
 tagline: Private readiness checks for your home server
 description: >-
   HomeOps Sentinel is a focused operations dashboard for self-hosters who run important

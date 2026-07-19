@@ -9,13 +9,15 @@ HomeOps Sentinel is an Umbrel-ready app for private home-server readiness checks
 </p>
 
 <p align="center">
-  <img src="umbrel-app-store/homeops-sentinel/gallery/2.png" alt="Monitor and backup configuration" width="405">
-  <img src="umbrel-app-store/homeops-sentinel/gallery/3.png" alt="Incident and alert tracking" width="405">
+  <img src="umbrel-app-store/homeops-sentinel/gallery/2.png" alt="Monitor reliability and lifecycle controls" width="405">
+  <img src="umbrel-app-store/homeops-sentinel/gallery/3.png" alt="Backup recovery tracking" width="405">
 </p>
 
 ## Features
 
 - HTTP, TCP, DNS, and TLS certificate monitors.
+- Persistent per-monitor reliability history with availability, average latency, and recent-check timelines.
+- In-place monitor editing plus pause/resume controls that keep maintenance checks out of readiness scoring.
 - Backup freshness and restore-test tracking with manual success recording or bearer-token heartbeat endpoints.
 - Private incident log for outages, upgrades, and recovery notes.
 - Readiness scoring across monitors, backups, alerts, and open incidents.
@@ -53,8 +55,7 @@ docker compose up --build
 
 Open `http://127.0.0.1:4747`.
 
-The included GitHub Actions workflow `.github/workflows/publish-image.yml` runs release checks with read-only default permissions and can publish a multi-architecture GHCR image for the Umbrel package through manual dispatch. The publish job is the only job with package write access, and it records the image digest plus registry SBOM/provenance evidence for release handoff.
-See `docs/GITHUB_RELEASE.md` for the GitHub main release runbook.
+The included GitHub Actions workflow `.github/workflows/publish-image.yml` runs release checks with read-only default permissions and can publish a multi-architecture GHCR image for the Umbrel package through manual dispatch. The publish job is the only job with package write access, and it records the image digest plus registry SBOM/provenance and signature evidence for release handoff. See `docs/GITHUB_RELEASE.md` for the maintainer release process.
 
 ## Verification
 
@@ -78,7 +79,7 @@ npm run check:release
 npm audit --omit=dev --audit-level=high
 ```
 
-Those release checks can still block on GitHub identity, upstream, clean-tree, package Docker image digest, source/support/release URLs, and release evidence requirements. The dependency audit requires registry access.
+The release checks verify Git state, version alignment, image digest pinning, public repository URLs, package assets, and workflow hardening. The dependency audit requires registry access.
 
 `npm run smoke` starts the built production server on a temporary local port with a workspace-local temporary data directory, checks `/api/health`, verifies static serving, confirms cross-origin mutation protection, creates a backup heartbeat token, and confirms the token is not returned by public state.
 
@@ -107,7 +108,7 @@ The app package lives in `umbrel-app-store/homeops-sentinel/` and includes:
 - `umbrel-app.yml`
 - `icon.svg`
 - `exports.sh`
-- `gallery/` with metadata-clean release screenshots. The initial package manifest keeps `gallery: []` and `releaseNotes: ""`.
+- `gallery/` with metadata-clean release screenshots. The package manifest keeps `gallery: []` and `releaseNotes: ""` until those fields are supplied by an Umbrel app-store submission.
 
 Follow `docs/UMBREL_PACKAGE.md` before publishing a package release.
 See `docs/VALIDATION_GUIDE.md` for local and Docker validation steps.
@@ -143,6 +144,7 @@ See `SECURITY.md` for supported versions, private reporting guidance, and the se
 - User-facing access relies on Umbrel app proxy authentication; the app does not add separate accounts or RBAC.
 - Restore-test proof is user-recorded evidence; the app tracks cadence, target, result, and notes, but it does not perform an automated restore.
 - Alerting supports one webhook destination and best-effort delivery history.
+- Reliability metrics use the latest 720 retained checks per monitor; the browser receives the latest 48 timeline entries.
 - Local network monitor probing is intentionally allowed for home-server use, while metadata, link-local, multicast, and unsafe targets are blocked.
 - Package release validation depends on a public multi-architecture image digest, real source/support URLs, complete release evidence, and publish-workflow SBOM/provenance proof for the final digest.
 

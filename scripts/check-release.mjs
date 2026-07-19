@@ -117,7 +117,7 @@ for (const field of ["website", "repo", "support"]) {
 const submission = manifestField(manifest, "submission");
 if (submission && !submission.startsWith("https://github.com/")) {
   failures.push(
-    "umbrel-app.yml submission must be blank for first handoff or use a GitHub HTTPS URL"
+    "umbrel-app.yml submission must be blank until submission or use a GitHub HTTPS URL"
   );
 }
 requireIncludes(manifest, "developer: brainx", "umbrel-app.yml developer must be brainx");

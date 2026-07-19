@@ -15,15 +15,19 @@ import {
   Loader2,
   LockKeyhole,
   NotebookPen,
+  Pause,
+  Pencil,
   Play,
   Plus,
   RefreshCw,
   Send,
   Server,
+  Save,
   Settings,
   ShieldCheck,
   Trash2,
   WifiOff,
+  X,
   XCircle
 } from "lucide-react";
 import type {
@@ -32,6 +36,7 @@ import type {
   HealthStatus,
   HeartbeatTokenResponse,
   Monitor,
+  MonitorMetrics,
   MonitorType,
   RestoreTestResult
 } from "./types";
@@ -49,6 +54,7 @@ import {
   sendTestAlert,
   updateBackup,
   updateIncident,
+  updateMonitor,
   updateSettings
 } from "./api";
 
@@ -62,6 +68,12 @@ const navItems = [
 ] as const;
 
 type ActiveView = (typeof navItems)[number]["id"];
+type RunAction = <T>(
+  action: () => Promise<T>,
+  success: string,
+  id?: string,
+  onSuccess?: () => void
+) => Promise<void>;
 
 const statusCopy: Record<HealthStatus, string> = {
   healthy: "Healthy",
@@ -78,7 +90,7 @@ const typeLabels: Record<MonitorType, string> = {
 };
 
 const defaultState: AppState = {
-  app: { name: "HomeOps Sentinel", version: "0.1.0" },
+  app: { name: "HomeOps Sentinel", version: "Unavailable" },
   settings: {
     checkIntervalSeconds: 300,
     notifyOnRecovery: true,
@@ -88,10 +100,14 @@ const defaultState: AppState = {
   backups: [],
   incidents: [],
   results: {},
+  monitorHistory: {},
+  monitorMetrics: {},
   alertEvents: [],
   summary: {
     overall: "unknown",
     monitors: 0,
+    enabledMonitors: 0,
+    pausedMonitors: 0,
     backups: 0,
     counts: { healthy: 0, degraded: 0, down: 0, unknown: 0 },
     alertWebhookConfigured: false,
@@ -125,7 +141,12 @@ export function App() {
     }
   }
 
-  async function runAction<T>(action: () => Promise<T>, success: string, id?: string) {
+  async function runAction<T>(
+    action: () => Promise<T>,
+    success: string,
+    id?: string,
+    onSuccess?: () => void
+  ) {
     try {
       setBusyId(id || "global");
       const next = await action();
@@ -133,6 +154,7 @@ export function App() {
         setState(next);
         setLastRefreshedAt(new Date());
       }
+      onSuccess?.();
       setNotice(success);
       setError(null);
     } catch (err) {
@@ -209,7 +231,11 @@ export function App() {
             </div>
             <div className="top-metric">
               <Activity size={16} />
-              <span>{state.summary.monitors} monitors</span>
+              <span>
+                {state.summary.pausedMonitors > 0
+                  ? `${state.summary.enabledMonitors}/${state.summary.monitors} active`
+                  : `${state.summary.monitors} monitors`}
+              </span>
             </div>
             <div className="top-metric">
               <DatabaseBackup size={16} />
@@ -279,7 +305,7 @@ function Dashboard({
 }: {
   state: AppState;
   busyId: string | null;
-  runAction: <T>(action: () => Promise<T>, success: string, id?: string) => Promise<void>;
+  runAction: RunAction;
   setActiveView: (view: ActiveView) => void;
   lastRefreshedAt: Date | null;
 }) {
@@ -345,6 +371,8 @@ function Dashboard({
                 key={monitor.id}
                 monitor={monitor}
                 result={state.results[monitor.id]}
+                history={state.monitorHistory[monitor.id] || []}
+                metrics={state.monitorMetrics[monitor.id]}
                 busy={busyId === monitor.id}
                 onCheck={() =>
                   runAction(
@@ -534,7 +562,7 @@ function DashboardActionStrip({
   state: AppState;
   busyId: string | null;
   lastRefreshedAt: Date | null;
-  runAction: <T>(action: () => Promise<T>, success: string, id?: string) => Promise<void>;
+  runAction: RunAction;
   setActiveView: (view: ActiveView) => void;
 }) {
   return (
@@ -605,7 +633,7 @@ function MonitorsView({
 }: {
   state: AppState;
   busyId: string | null;
-  runAction: <T>(action: () => Promise<T>, success: string, id?: string) => Promise<void>;
+  runAction: RunAction;
 }) {
   return (
     <div className="content-stack">
@@ -628,7 +656,7 @@ function BackupsView({
 }: {
   state: AppState;
   busyId: string | null;
-  runAction: <T>(action: () => Promise<T>, success: string, id?: string) => Promise<void>;
+  runAction: RunAction;
 }) {
   const [name, setName] = useState("");
   const [scheduleHours, setScheduleHours] = useState(24);
@@ -1032,7 +1060,7 @@ function AlertsView({
 }: {
   state: AppState;
   busyId: string | null;
-  runAction: <T>(action: () => Promise<T>, success: string, id?: string) => Promise<void>;
+  runAction: RunAction;
 }) {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [notifyOnRecovery, setNotifyOnRecovery] = useState(state.settings.notifyOnRecovery);
@@ -1162,7 +1190,7 @@ function IncidentsView({
 }: {
   state: AppState;
   busyId: string | null;
-  runAction: <T>(action: () => Promise<T>, success: string, id?: string) => Promise<void>;
+  runAction: RunAction;
 }) {
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
@@ -1268,7 +1296,7 @@ function SettingsView({
 }: {
   state: AppState;
   busyId: string | null;
-  runAction: <T>(action: () => Promise<T>, success: string, id?: string) => Promise<void>;
+  runAction: RunAction;
 }) {
   const [checkIntervalSeconds, setCheckIntervalSeconds] = useState(
     state.settings.checkIntervalSeconds
@@ -1319,16 +1347,35 @@ function SettingsView({
   );
 }
 
-function MonitorForm({ onSubmit }: { onSubmit: (body: unknown) => Promise<void> }) {
-  const [type, setType] = useState<MonitorType>("http");
-  const [name, setName] = useState("");
-  const [intervalSeconds, setIntervalSeconds] = useState(300);
-  const [url, setUrl] = useState("");
-  const [host, setHost] = useState("");
-  const [port, setPort] = useState(443);
-  const [hostname, setHostname] = useState("");
-  const [recordType, setRecordType] = useState("A");
-  const [warningDays, setWarningDays] = useState(21);
+function MonitorForm({
+  onSubmit,
+  initialMonitor,
+  onCancel
+}: {
+  onSubmit: (body: unknown) => Promise<void>;
+  initialMonitor?: Monitor;
+  onCancel?: () => void;
+}) {
+  const initialTarget = initialMonitor?.target;
+  const [type, setType] = useState<MonitorType>(initialMonitor?.type || "http");
+  const [name, setName] = useState(initialMonitor?.name || "");
+  const [intervalSeconds, setIntervalSeconds] = useState(initialMonitor?.intervalSeconds || 300);
+  const [url, setUrl] = useState(initialTarget && "url" in initialTarget ? initialTarget.url : "");
+  const [host, setHost] = useState(
+    initialTarget && "host" in initialTarget ? initialTarget.host : ""
+  );
+  const [port, setPort] = useState(
+    initialTarget && "port" in initialTarget ? initialTarget.port : 443
+  );
+  const [hostname, setHostname] = useState(
+    initialTarget && "hostname" in initialTarget ? initialTarget.hostname : ""
+  );
+  const [recordType, setRecordType] = useState(
+    initialTarget && "recordType" in initialTarget ? initialTarget.recordType : "A"
+  );
+  const [warningDays, setWarningDays] = useState(
+    initialTarget && "warningDays" in initialTarget ? initialTarget.warningDays : 21
+  );
 
   const targetFields = useMemo(() => {
     if (type === "http") {
@@ -1430,6 +1477,7 @@ function MonitorForm({ onSubmit }: { onSubmit: (body: unknown) => Promise<void> 
             ? { hostname, recordType }
             : { host, port, warningDays };
     return onSubmit({ name, type, intervalSeconds, target }).then(() => {
+      if (initialMonitor) return;
       setName("");
       setUrl("");
       setHost("");
@@ -1468,10 +1516,17 @@ function MonitorForm({ onSubmit }: { onSubmit: (body: unknown) => Promise<void> 
         />
       </label>
       {targetFields}
-      <button className="primary-button" type="submit">
-        <Plus size={16} />
-        Create monitor
-      </button>
+      <div className="form-actions">
+        {onCancel && (
+          <button className="secondary-button" type="button" onClick={onCancel}>
+            Cancel
+          </button>
+        )}
+        <button className="primary-button" type="submit">
+          {initialMonitor ? <Save size={16} /> : <Plus size={16} />}
+          {initialMonitor ? "Save changes" : "Create monitor"}
+        </button>
+      </div>
     </form>
   );
 }
@@ -1483,111 +1538,271 @@ function MonitorTable({
 }: {
   state: AppState;
   busyId: string | null;
-  runAction: <T>(action: () => Promise<T>, success: string, id?: string) => Promise<void>;
+  runAction: RunAction;
 }) {
+  const [editingMonitor, setEditingMonitor] = useState<Monitor | null>(null);
+
   if (state.monitors.length === 0) {
     return <MiniEmpty body="No monitor rows yet. Create one from the Monitors view." />;
   }
 
   return (
-    <div className="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Target</th>
-            <th>Last check</th>
-            <th>Latency</th>
-            <th aria-label="Actions" />
-          </tr>
-        </thead>
-        <tbody>
-          {state.monitors.map((monitor) => {
-            const result = state.results[monitor.id];
-            const status = result?.status || "unknown";
-            return (
-              <tr key={monitor.id}>
-                <td>
-                  <StatusPill status={status} />
-                </td>
-                <td>{monitor.name}</td>
-                <td>{typeLabels[monitor.type]}</td>
-                <td className="target-cell" title={targetSummary(monitor)}>
-                  {targetSummary(monitor)}
-                </td>
-                <td>{result ? formatDate(result.checkedAt) : "Not checked"}</td>
-                <td>{result ? `${result.latencyMs}ms` : "n/a"}</td>
-                <td>
-                  <div className="row-actions">
-                    <button
-                      className="icon-button"
-                      type="button"
-                      aria-label={`Run ${monitor.name}`}
-                      disabled={busyId === monitor.id}
-                      onClick={() =>
-                        runAction(
-                          () => runMonitorCheck(monitor.id),
-                          "Monitor check completed",
-                          monitor.id
-                        )
-                      }
-                    >
-                      {busyId === monitor.id ? (
-                        <Loader2 className="spin" size={16} />
-                      ) : (
-                        <Play size={16} />
-                      )}
-                    </button>
-                    <button
-                      className="icon-button danger"
-                      type="button"
-                      aria-label={`Delete ${monitor.name}`}
-                      disabled={busyId === monitor.id}
-                      onClick={() => {
-                        if (window.confirm(`Delete monitor "${monitor.name}"?`)) {
-                          void runAction(
-                            () => deleteMonitor(monitor.id),
-                            "Monitor deleted",
+    <>
+      <div className="table-wrap">
+        <table className="monitor-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Target</th>
+              <th>Reliability</th>
+              <th>Recent checks</th>
+              <th>Last check</th>
+              <th aria-label="Actions" />
+            </tr>
+          </thead>
+          <tbody>
+            {state.monitors.map((monitor) => {
+              const result = state.results[monitor.id];
+              const status = result?.status || "unknown";
+              const history = state.monitorHistory[monitor.id] || [];
+              const metrics = state.monitorMetrics[monitor.id];
+              return (
+                <tr key={monitor.id}>
+                  <td>{monitor.enabled ? <StatusPill status={status} /> : <PausedPill />}</td>
+                  <td>{monitor.name}</td>
+                  <td>{typeLabels[monitor.type]}</td>
+                  <td className="target-cell" title={targetSummary(monitor)}>
+                    {targetSummary(monitor)}
+                  </td>
+                  <td>
+                    <ReliabilitySummary metrics={metrics} />
+                  </td>
+                  <td>
+                    <StatusTimeline history={history} />
+                  </td>
+                  <td>{result ? formatDate(result.checkedAt) : "Not checked"}</td>
+                  <td>
+                    <div className="row-actions">
+                      <button
+                        className="icon-button"
+                        type="button"
+                        aria-label={`Run ${monitor.name}`}
+                        disabled={busyId === monitor.id}
+                        onClick={() =>
+                          runAction(
+                            () => runMonitorCheck(monitor.id),
+                            "Monitor check completed",
                             monitor.id
-                          );
+                          )
                         }
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                      >
+                        {busyId === monitor.id ? (
+                          <Loader2 className="spin" size={16} />
+                        ) : (
+                          <Play size={16} />
+                        )}
+                      </button>
+                      <button
+                        className="icon-button"
+                        type="button"
+                        aria-label={`${monitor.enabled ? "Pause" : "Resume"} ${monitor.name}`}
+                        disabled={busyId === monitor.id}
+                        onClick={() =>
+                          runAction(
+                            () => updateMonitor(monitor.id, { enabled: !monitor.enabled }),
+                            monitor.enabled ? "Monitor paused" : "Monitor resumed",
+                            monitor.id
+                          )
+                        }
+                      >
+                        {monitor.enabled ? <Pause size={16} /> : <Play size={16} />}
+                      </button>
+                      <button
+                        className="icon-button"
+                        type="button"
+                        aria-label={`Edit ${monitor.name}`}
+                        disabled={busyId === monitor.id}
+                        onClick={() => setEditingMonitor(monitor)}
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        className="icon-button danger"
+                        type="button"
+                        aria-label={`Delete ${monitor.name}`}
+                        disabled={busyId === monitor.id}
+                        onClick={() => {
+                          if (window.confirm(`Delete monitor "${monitor.name}"?`)) {
+                            void runAction(
+                              () => deleteMonitor(monitor.id),
+                              "Monitor deleted",
+                              monitor.id
+                            );
+                          }
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {editingMonitor && (
+        <MonitorEditor
+          monitor={editingMonitor}
+          runAction={runAction}
+          onClose={() => setEditingMonitor(null)}
+        />
+      )}
+    </>
+  );
+}
+
+function MonitorEditor({
+  monitor,
+  runAction,
+  onClose
+}: {
+  monitor: Monitor;
+  runAction: RunAction;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [onClose]);
+
+  return (
+    <div className="dialog-backdrop">
+      <section
+        className="monitor-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="monitor-dialog-title"
+      >
+        <div className="dialog-header">
+          <div>
+            <h2 id="monitor-dialog-title">Edit monitor</h2>
+            <p>Update the target or schedule without losing check history.</p>
+          </div>
+          <button className="icon-button" type="button" aria-label="Close editor" onClick={onClose}>
+            <X size={17} />
+          </button>
+        </div>
+        <MonitorForm
+          initialMonitor={monitor}
+          onCancel={onClose}
+          onSubmit={(body) =>
+            runAction(() => updateMonitor(monitor.id, body), "Monitor updated", monitor.id, onClose)
+          }
+        />
+      </section>
     </div>
+  );
+}
+
+function ReliabilitySummary({ metrics }: { metrics: MonitorMetrics | undefined }) {
+  if (!metrics || metrics.totalChecks === 0) {
+    return <span className="reliability-empty">No history</span>;
+  }
+
+  return (
+    <span className="reliability-summary">
+      <strong>{metrics.availabilityPercent}%</strong>
+      <span>
+        {metrics.totalChecks} check{metrics.totalChecks === 1 ? "" : "s"} ·{" "}
+        {metrics.averageLatencyMs}
+        ms avg
+      </span>
+    </span>
+  );
+}
+
+function StatusTimeline({
+  history,
+  limit = 16
+}: {
+  history: AppState["monitorHistory"][string];
+  limit?: number;
+}) {
+  const recent = history.slice(-limit);
+  if (recent.length === 0) return <span className="history-empty">Not checked</span>;
+
+  const counts = recent.reduce<Record<HealthStatus, number>>(
+    (current, result) => ({ ...current, [result.status]: current[result.status] + 1 }),
+    { healthy: 0, degraded: 0, down: 0, unknown: 0 }
+  );
+  const summary = (Object.keys(counts) as HealthStatus[])
+    .filter((status) => counts[status] > 0)
+    .map((status) => `${counts[status]} ${statusCopy[status].toLowerCase()}`)
+    .join(", ");
+
+  return (
+    <span className="status-history" role="img" aria-label={`Recent checks: ${summary}`}>
+      {recent.map((result, index) => (
+        <span
+          key={`${result.checkedAt}-${index}`}
+          className={result.status}
+          title={`${formatDate(result.checkedAt)} · ${result.message} · ${result.latencyMs}ms`}
+        />
+      ))}
+    </span>
+  );
+}
+
+function PausedPill() {
+  return (
+    <span className="paused-pill">
+      <Pause size={13} />
+      Paused
+    </span>
   );
 }
 
 function MonitorCard({
   monitor,
   result,
+  history,
+  metrics,
   busy,
   onCheck
 }: {
   monitor: Monitor;
   result: AppState["results"][string] | undefined;
+  history: AppState["monitorHistory"][string];
+  metrics: MonitorMetrics | undefined;
   busy: boolean;
   onCheck: () => void;
 }) {
   const status = result?.status || "unknown";
   return (
-    <article className={`service-card ${status}`}>
+    <article className={`service-card ${monitor.enabled ? status : "paused"}`}>
       <div className="card-topline">
-        <StatusDot status={status} />
-        <span>{typeLabels[monitor.type]}</span>
+        {monitor.enabled ? (
+          <StatusDot status={status} />
+        ) : (
+          <Pause className="paused-icon" size={13} />
+        )}
+        <span>
+          {typeLabels[monitor.type]}
+          {!monitor.enabled && " · Paused"}
+        </span>
       </div>
       <h3>{monitor.name}</h3>
       <p>{targetSummary(monitor)}</p>
+      <div className="card-reliability">
+        <ReliabilitySummary metrics={metrics} />
+        <StatusTimeline history={history} limit={12} />
+      </div>
       <footer>
         <span>{result?.message || "Waiting for first check"}</span>
         <button

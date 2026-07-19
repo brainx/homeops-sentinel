@@ -8,6 +8,13 @@ import {
   runMonitor
 } from "../server/monitors.js";
 import {
+  MONITOR_HISTORY_LIMIT,
+  normalizeMonitorHistory,
+  publicMonitorHistory,
+  recordMonitorResult,
+  summarizeMonitorHistory
+} from "../server/history.js";
+import {
   createSafeLookup,
   isBlockedAddress,
   normalizeOutboundUrl,
@@ -185,6 +192,50 @@ assert.equal(
   }).target.warningDays,
   90
 );
+
+const historyState = { results: {}, monitorHistory: {} };
+const firstHistoryResult = {
+  status: "healthy",
+  message: "HTTP 200",
+  latencyMs: 12.4,
+  checkedAt: "2026-06-13T10:00:00.000Z"
+};
+recordMonitorResult(historyState, "mon_history", firstHistoryResult);
+recordMonitorResult(historyState, "mon_history", {
+  status: "down",
+  message: "Connection refused",
+  latencyMs: 31,
+  checkedAt: "2026-06-13T10:05:00.000Z"
+});
+assert.equal(historyState.results.mon_history.status, "down");
+assert.equal(historyState.monitorHistory.mon_history.length, 2);
+assert.deepEqual(summarizeMonitorHistory(historyState.monitorHistory.mon_history), {
+  totalChecks: 2,
+  healthyChecks: 1,
+  availabilityPercent: 50,
+  averageLatencyMs: 22,
+  lastFailureAt: "2026-06-13T10:05:00.000Z"
+});
+assert.equal(publicMonitorHistory(Array.from({ length: 60 }, () => firstHistoryResult)).length, 48);
+assert.throws(
+  () => recordMonitorResult(historyState, "mon_history", { status: "healthy" }),
+  /invalid/
+);
+
+const oversizedHistory = Array.from({ length: MONITOR_HISTORY_LIMIT + 5 }, (_, index) => ({
+  ...firstHistoryResult,
+  latencyMs: index,
+  checkedAt: new Date(Date.UTC(2026, 0, 1, 0, index)).toISOString()
+}));
+const normalizedHistory = normalizeMonitorHistory({
+  mon_history: oversizedHistory,
+  mon_invalid: [{ status: "broken" }],
+  mon_not_array: "bad"
+});
+assert.equal(normalizedHistory.mon_history.length, MONITOR_HISTORY_LIMIT);
+assert.equal(normalizedHistory.mon_history[0].latencyMs, 5);
+assert.equal(normalizedHistory.mon_invalid, undefined);
+assert.equal(normalizedHistory.mon_not_array, undefined);
 
 const backup = normalizeBackup({ name: "Nightly", scheduleHours: 24 });
 assert.equal(backupStatus(backup).status, "degraded");

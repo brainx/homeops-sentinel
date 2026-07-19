@@ -2,6 +2,7 @@ import dns from "node:dns/promises";
 import http from "node:http";
 import https from "node:https";
 import net from "node:net";
+import { APP_VERSION } from "./config.js";
 
 export function parseIpAddress(address) {
   const value = String(address || "")
@@ -175,7 +176,7 @@ function sendJsonOnce(url, payload, options) {
         headers: {
           "content-type": "application/json",
           "content-length": Buffer.byteLength(body),
-          "user-agent": "HomeOps-Sentinel/0.1.0"
+          "user-agent": `HomeOps-Sentinel/${APP_VERSION}`
         }
       },
       (response) => {

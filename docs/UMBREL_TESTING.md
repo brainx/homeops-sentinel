@@ -58,7 +58,7 @@ only after the live checklist has been completed on that environment.
 - Persistent state is mapped from `${APP_DATA_DIR}/data` to `/data`.
 - Runtime container does not use privileged mode, host networking, public port mappings, or Docker socket mounts.
 - Runtime container uses `read_only: true`, `/tmp` tmpfs, and `no-new-privileges:true`.
-- Manifest keeps `gallery: []` and `releaseNotes: ""` for the initial package handoff.
+- Manifest keeps `gallery: []` and `releaseNotes: ""` until the Umbrel app-store submission supplies them.
 
 ## Additional Umbrel Hardware Checks
 

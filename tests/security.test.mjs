@@ -12,6 +12,7 @@ import {
   verifyHeartbeatToken
 } from "../server/heartbeats.js";
 import { createSecretBox } from "../server/secrets.js";
+import { APP_VERSION } from "../server/config.js";
 import { normalizeOutboundUrl, resolveSafeAddress } from "../server/network.js";
 import { normalizeMonitor, summarizeState } from "../server/monitors.js";
 import {
@@ -175,6 +176,42 @@ const readySummary = summarizeState({
 });
 assert.equal(readySummary.readiness.score >= 90, true);
 assert.equal(readySummary.readiness.label, "Ready");
+
+const pausedSummary = summarizeState({
+  settings: { alertWebhookEncrypted: null },
+  monitors: [{ id: "mon_paused", enabled: false }],
+  backups: [],
+  incidents: [],
+  results: {
+    mon_paused: {
+      status: "down",
+      message: "Previous failure",
+      latencyMs: 20,
+      checkedAt: new Date().toISOString()
+    }
+  }
+});
+assert.equal(pausedSummary.overall, "degraded");
+assert.equal(pausedSummary.counts.down, 0);
+assert.equal(pausedSummary.counts.unknown, 0);
+assert.equal(pausedSummary.enabledMonitors, 0);
+assert.equal(pausedSummary.pausedMonitors, 1);
+assert.equal(pausedSummary.readiness.checks[0].message, "All service monitors are paused");
+
+const pausedWithFailedBackup = summarizeState({
+  settings: { alertWebhookEncrypted: null },
+  monitors: [{ id: "mon_paused", enabled: false }],
+  backups: [
+    {
+      scheduleHours: 1,
+      lastSuccessAt: "2026-01-01T00:00:00.000Z",
+      restoreTest: { intervalDays: 30, result: "not_tested" }
+    }
+  ],
+  incidents: [],
+  results: {}
+});
+assert.equal(pausedWithFailedBackup.overall, "down");
 
 assert.throws(
   () =>
@@ -404,7 +441,7 @@ await withTestServer(async (baseUrl) => {
   const intentHeaders = { [INTENT_HEADER]: INTENT_VALUE };
   const initialDiagnostics = await requestJson(baseUrl, "/api/diagnostics");
   assert.equal(initialDiagnostics.status, 200);
-  assert.equal(initialDiagnostics.payload.app.version, "0.1.0");
+  assert.equal(initialDiagnostics.payload.app.version, APP_VERSION);
   assert.equal(typeof initialDiagnostics.payload.runtime.uptimeSeconds, "number");
   assert.equal(initialDiagnostics.payload.scheduler.intervalMs, 10000);
   assert.equal(initialDiagnostics.payload.counts.monitors, 0);
@@ -498,6 +535,9 @@ await withTestServer(async (baseUrl) => {
   });
   assert.equal(monitorCheck.status, 200);
   assert.equal(monitorCheck.payload.results[monitor.id].status, "healthy");
+  assert.equal(monitorCheck.payload.monitorHistory[monitor.id].length, 1);
+  assert.equal(monitorCheck.payload.monitorMetrics[monitor.id].totalChecks, 1);
+  assert.equal(monitorCheck.payload.monitorMetrics[monitor.id].availabilityPercent, 100);
 
   const checkAll = await requestJson(baseUrl, "/api/monitors/check-all", {
     method: "POST",
@@ -505,6 +545,25 @@ await withTestServer(async (baseUrl) => {
   });
   assert.equal(checkAll.status, 200);
   assert.equal(checkAll.payload.results[monitor.id].status, "healthy");
+  assert.equal(checkAll.payload.monitorHistory[monitor.id].length, 2);
+
+  const monitorPause = await requestJson(baseUrl, `/api/monitors/${monitor.id}`, {
+    method: "PATCH",
+    headers: intentHeaders,
+    body: { enabled: false }
+  });
+  assert.equal(monitorPause.status, 200);
+  assert.equal(monitorPause.payload.monitors.find((item) => item.id === monitor.id).enabled, false);
+  assert.equal(monitorPause.payload.summary.enabledMonitors, 0);
+  assert.equal(monitorPause.payload.summary.counts.healthy, 0);
+
+  const monitorResume = await requestJson(baseUrl, `/api/monitors/${monitor.id}`, {
+    method: "PATCH",
+    headers: intentHeaders,
+    body: { enabled: true }
+  });
+  assert.equal(monitorResume.status, 200);
+  assert.equal(monitorResume.payload.summary.enabledMonitors, 1);
 
   const backupCreate = await requestJson(baseUrl, "/api/backups", {
     method: "POST",
@@ -623,6 +682,8 @@ await withTestServer(async (baseUrl) => {
     false
   );
   assert.equal(deleteMonitor.payload.results[monitor.id], undefined);
+  assert.equal(deleteMonitor.payload.monitorHistory[monitor.id], undefined);
+  assert.equal(deleteMonitor.payload.monitorMetrics[monitor.id], undefined);
 });
 
 console.log("security tests passed");

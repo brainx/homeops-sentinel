@@ -173,21 +173,7 @@ if (!osvWorkflow.includes("google/osv-scanner-action/")) {
   fail("osv-scan workflow must run OSV scanner");
 }
 if (osvWorkflow.includes("security-events: write") || osvWorkflow.includes("upload-sarif")) {
-  fail("osv-scan workflow must not require code-scanning SARIF upload in this private repo");
-}
-
-try {
-  await fs.access(".github/workflows/codeql.yml");
-  fail("CodeQL workflow is intentionally unsupported for this private repo; remove it");
-} catch (error) {
-  if (error.code !== "ENOENT") throw error;
-}
-
-try {
-  await fs.access(".github/dependabot.yml");
-  fail("Dependabot config is intentionally absent to keep this release branch clean");
-} catch (error) {
-  if (error.code !== "ENOENT") throw error;
+  fail("osv-scan workflow must run without code-scanning SARIF upload permissions");
 }
 
 const releaseNotes = await readIfExists(`docs/RELEASE_NOTES_${packageJson.version}.md`);

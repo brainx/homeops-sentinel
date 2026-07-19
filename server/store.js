@@ -1,9 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
+import { normalizeMonitorHistory } from "./history.js";
 
 export const DEFAULT_STATE = Object.freeze({
-  schemaVersion: 1,
+  schemaVersion: 2,
   settings: {
     checkIntervalSeconds: 300,
     notifyOnRecovery: true,
@@ -13,11 +14,12 @@ export const DEFAULT_STATE = Object.freeze({
   backups: [],
   incidents: [],
   results: {},
+  monitorHistory: {},
   alertLedger: {},
   alertEvents: []
 });
 
-const CURRENT_SCHEMA_VERSION = 1;
+const CURRENT_SCHEMA_VERSION = 2;
 
 export function createId(prefix) {
   return `${prefix}_${crypto.randomBytes(9).toString("base64url")}`;
@@ -42,6 +44,7 @@ function normalizeState(input) {
   state.backups = Array.isArray(state.backups) ? state.backups : [];
   state.incidents = Array.isArray(state.incidents) ? state.incidents : [];
   state.results = state.results && typeof state.results === "object" ? state.results : {};
+  state.monitorHistory = normalizeMonitorHistory(state.monitorHistory);
   state.alertLedger =
     state.alertLedger && typeof state.alertLedger === "object" ? state.alertLedger : {};
   state.alertEvents = Array.isArray(state.alertEvents) ? state.alertEvents.slice(0, 100) : [];
