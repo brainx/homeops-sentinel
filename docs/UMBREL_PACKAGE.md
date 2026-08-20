@@ -35,7 +35,7 @@ The manifest keeps `gallery: []`, `releaseNotes: ""`, and `submission: ""` until
 The included GitHub Actions workflows provide separate reviewer-facing gates:
 
 - `.github/workflows/ci.yml` runs linting, formatting checks, type checks, tests, build, local smoke, production dependency audit, and Docker smoke.
-- `.github/workflows/dependency-review.yml` blocks high-severity dependency changes in pull requests.
+- `.github/workflows/dependency-review.yml` blocks high-severity npm dependency advisories in pull requests without relying on repository dependency-graph settings.
 - `.github/workflows/secret-scan.yml` runs gitleaks without PR comment noise.
 - `.github/workflows/osv-scan.yml` runs OSV scanning without requiring code-scanning upload permissions.
 - `.github/workflows/container-scan.yml` builds the container and scans it with Trivy.

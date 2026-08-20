@@ -13,6 +13,7 @@ HomeOps Sentinel 0.2.1 is a reliability and security-focused maintenance release
 - Add accessible monitor dialogs with initial focus, focus trapping, background isolation, focus restoration, and dialog-local validation errors.
 - Honor custom development ports and shut down development child processes cleanly.
 - Verify release images against the version tag, raw OCI digest, GitHub repository owner, and required `linux/amd64` and `linux/arm64` manifests.
+- Refresh development-tool dependencies to remove known advisories and keep pull-request dependency and secret scans fail-closed without optional repository features.
 
 ## Verification
 
