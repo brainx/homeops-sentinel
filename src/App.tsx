@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Activity,
   AlertTriangle,
@@ -32,6 +33,7 @@ import {
 } from "lucide-react";
 import type {
   AppState,
+  AlertTestResponse,
   Backup,
   HealthStatus,
   HeartbeatTokenResponse,
@@ -68,12 +70,12 @@ const navItems = [
 ] as const;
 
 type ActiveView = (typeof navItems)[number]["id"];
+type ActionResult = { succeeded: true } | { succeeded: false; error: string };
 type RunAction = <T>(
   action: () => Promise<T>,
   success: string,
-  id?: string,
-  onSuccess?: () => void
-) => Promise<void>;
+  id?: string
+) => Promise<ActionResult>;
 
 const statusCopy: Record<HealthStatus, string> = {
   healthy: "Healthy",
@@ -88,6 +90,15 @@ const typeLabels: Record<MonitorType, string> = {
   dns: "DNS",
   tls: "TLS"
 };
+
+function successfulAlertTestState(response: AlertTestResponse) {
+  if (response.delivery.deliveryStatus === "failed") {
+    throw new Error(
+      response.delivery.error || response.delivery.message || "Alert delivery failed"
+    );
+  }
+  return response.state;
+}
 
 const defaultState: AppState = {
   app: { name: "HomeOps Sentinel", version: "Unavailable" },
@@ -141,12 +152,7 @@ export function App() {
     }
   }
 
-  async function runAction<T>(
-    action: () => Promise<T>,
-    success: string,
-    id?: string,
-    onSuccess?: () => void
-  ) {
+  async function runAction<T>(action: () => Promise<T>, success: string, id?: string) {
     try {
       setBusyId(id || "global");
       const next = await action();
@@ -154,11 +160,13 @@ export function App() {
         setState(next);
         setLastRefreshedAt(new Date());
       }
-      onSuccess?.();
       setNotice(success);
       setError(null);
+      return { succeeded: true } as const;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Action failed");
+      const message = err instanceof Error ? err.message : "Action failed";
+      setError(message);
+      return { succeeded: false, error: message } as const;
     } finally {
       setBusyId(null);
     }
@@ -606,8 +614,7 @@ function DashboardActionStrip({
           onClick={() =>
             runAction(
               async () => {
-                const response = await sendTestAlert();
-                return response.state;
+                return successfulAlertTestState(await sendTestAlert());
               },
               "Alert test completed",
               "dashboard-alert-test"
@@ -639,7 +646,10 @@ function MonitorsView({
     <div className="content-stack">
       <section className="panel">
         <PanelHeader title="Create monitor" />
-        <MonitorForm onSubmit={(body) => runAction(() => createMonitor(body), "Monitor created")} />
+        <MonitorForm
+          defaultIntervalSeconds={state.settings.checkIntervalSeconds}
+          onSubmit={(body) => runAction(() => createMonitor(body), "Monitor created")}
+        />
       </section>
       <section className="panel">
         <PanelHeader title="Monitor inventory" />
@@ -675,11 +685,13 @@ function BackupsView({
           restoreTest: { intervalDays: restoreTestIntervalDays }
         }),
       "Backup tracker created"
-    ).then(() => {
-      setName("");
-      setNotes("");
-      setScheduleHours(24);
-      setRestoreTestIntervalDays(90);
+    ).then((result) => {
+      if (result.succeeded) {
+        setName("");
+        setNotes("");
+        setScheduleHours(24);
+        setRestoreTestIntervalDays(90);
+      }
     });
   }
 
@@ -691,7 +703,7 @@ function BackupsView({
         `Rotate the heartbeat token for ${backup.name}? Existing jobs using the old token will stop updating this backup.`
       )
     ) {
-      return Promise.resolve();
+      return Promise.resolve({ succeeded: false, error: "Action cancelled" } as const);
     }
     return runAction(
       async () => {
@@ -813,14 +825,14 @@ function BackupCard({
   backup: Backup;
   busy: boolean;
   onMarkSuccess: () => void;
-  onRotateHeartbeat: () => Promise<void>;
+  onRotateHeartbeat: () => Promise<ActionResult>;
   onRecordRestoreTest: (restoreTest: {
     intervalDays: number;
     lastTestedAt: string | null;
     target: string;
     result: RestoreTestResult;
     evidence: string;
-  }) => Promise<void>;
+  }) => Promise<ActionResult>;
   onDelete: () => void;
 }) {
   const initialResult =
@@ -840,7 +852,14 @@ function BackupCard({
     setResult(backup.restoreTest.result === "not_tested" ? "passed" : backup.restoreTest.result);
     setEvidence(backup.restoreTest.evidence);
     setIntervalDays(backup.restoreTest.intervalDays);
-  }, [backup.id, backup.restoreTest]);
+  }, [
+    backup.id,
+    backup.restoreTest.evidence,
+    backup.restoreTest.intervalDays,
+    backup.restoreTest.lastTestedAt,
+    backup.restoreTest.result,
+    backup.restoreTest.target
+  ]);
 
   function submitRestoreTest(event: React.FormEvent) {
     event.preventDefault();
@@ -850,7 +869,9 @@ function BackupCard({
       target,
       result,
       evidence
-    }).then(() => setExpanded(false));
+    }).then((actionResult) => {
+      if (actionResult.succeeded) setExpanded(false);
+    });
   }
 
   return (
@@ -989,7 +1010,10 @@ function HeartbeatTokenPanel({ secret }: { secret: HeartbeatTokenResponse }) {
 
   async function copy(label: string, value: string) {
     try {
-      await navigator.clipboard?.writeText(value);
+      if (typeof navigator.clipboard?.writeText !== "function") {
+        throw new Error("Clipboard API unavailable");
+      }
+      await navigator.clipboard.writeText(value);
       setCopied(label);
       window.setTimeout(() => setCopied(null), 1600);
     } catch {
@@ -1070,14 +1094,15 @@ function AlertsView({
     return runAction(
       () => updateSettings({ webhookUrl, notifyOnRecovery }),
       "Alert settings saved"
-    ).then(() => setWebhookUrl(""));
+    ).then((result) => {
+      if (result.succeeded) setWebhookUrl("");
+    });
   }
 
   function testAlert() {
     return runAction(
       async () => {
-        const response = await sendTestAlert();
-        return response.state;
+        return successfulAlertTestState(await sendTestAlert());
       },
       "Alert test completed",
       "alert-test"
@@ -1199,7 +1224,8 @@ function IncidentsView({
   function submit(event: React.FormEvent) {
     event.preventDefault();
     return runAction(() => createIncident({ title, notes, severity }), "Incident recorded").then(
-      () => {
+      (result) => {
+        if (!result.succeeded) return;
         setTitle("");
         setNotes("");
         setSeverity("info");
@@ -1350,16 +1376,20 @@ function SettingsView({
 function MonitorForm({
   onSubmit,
   initialMonitor,
-  onCancel
+  onCancel,
+  defaultIntervalSeconds = 300
 }: {
-  onSubmit: (body: unknown) => Promise<void>;
+  onSubmit: (body: unknown) => Promise<ActionResult>;
   initialMonitor?: Monitor;
   onCancel?: () => void;
+  defaultIntervalSeconds?: number;
 }) {
   const initialTarget = initialMonitor?.target;
   const [type, setType] = useState<MonitorType>(initialMonitor?.type || "http");
   const [name, setName] = useState(initialMonitor?.name || "");
-  const [intervalSeconds, setIntervalSeconds] = useState(initialMonitor?.intervalSeconds || 300);
+  const [intervalSeconds, setIntervalSeconds] = useState(
+    initialMonitor?.intervalSeconds ?? defaultIntervalSeconds
+  );
   const [url, setUrl] = useState(initialTarget && "url" in initialTarget ? initialTarget.url : "");
   const [host, setHost] = useState(
     initialTarget && "host" in initialTarget ? initialTarget.host : ""
@@ -1476,8 +1506,8 @@ function MonitorForm({
           : type === "dns"
             ? { hostname, recordType }
             : { host, port, warningDays };
-    return onSubmit({ name, type, intervalSeconds, target }).then(() => {
-      if (initialMonitor) return;
+    return onSubmit({ name, type, intervalSeconds, target }).then((result) => {
+      if (!result.succeeded || initialMonitor) return;
       setName("");
       setUrl("");
       setHost("");
@@ -1541,6 +1571,7 @@ function MonitorTable({
   runAction: RunAction;
 }) {
   const [editingMonitor, setEditingMonitor] = useState<Monitor | null>(null);
+  const closeEditor = useCallback(() => setEditingMonitor(null), []);
 
   if (state.monitors.length === 0) {
     return <MiniEmpty body="No monitor rows yet. Create one from the Monitors view." />;
@@ -1654,11 +1685,7 @@ function MonitorTable({
         </table>
       </div>
       {editingMonitor && (
-        <MonitorEditor
-          monitor={editingMonitor}
-          runAction={runAction}
-          onClose={() => setEditingMonitor(null)}
-        />
+        <MonitorEditor monitor={editingMonitor} runAction={runAction} onClose={closeEditor} />
       )}
     </>
   );
@@ -1673,21 +1700,79 @@ function MonitorEditor({
   runAction: RunAction;
   onClose: () => void;
 }) {
-  useEffect(() => {
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+  const dialogRef = useRef<HTMLElement>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  async function saveMonitor(body: unknown) {
+    setSaveError(null);
+    const result = await runAction(
+      () => updateMonitor(monitor.id, body),
+      "Monitor updated",
+      monitor.id
+    );
+    if (result.succeeded) {
+      onClose();
+    } else {
+      setSaveError(`Monitor update failed: ${result.error}`);
     }
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
+    return result;
+  }
+
+  useEffect(() => {
+    const appShell = document.querySelector<HTMLElement>(".app-shell");
+    const restoreFocus =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const dialog = dialogRef.current;
+    appShell?.setAttribute("inert", "");
+    dialog?.querySelector<HTMLElement>("form input, form select, form textarea")?.focus();
+
+    function containFocus(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab" || !dialog) return;
+
+      const focusable = [
+        ...dialog.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ].filter((element) => !element.hasAttribute("hidden"));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    window.addEventListener("keydown", containFocus);
+    return () => {
+      window.removeEventListener("keydown", containFocus);
+      appShell?.removeAttribute("inert");
+      restoreFocus?.focus();
+    };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div className="dialog-backdrop">
       <section
+        ref={dialogRef}
         className="monitor-dialog"
         role="dialog"
         aria-modal="true"
         aria-labelledby="monitor-dialog-title"
+        tabIndex={-1}
       >
         <div className="dialog-header">
           <div>
@@ -1698,15 +1783,15 @@ function MonitorEditor({
             <X size={17} />
           </button>
         </div>
-        <MonitorForm
-          initialMonitor={monitor}
-          onCancel={onClose}
-          onSubmit={(body) =>
-            runAction(() => updateMonitor(monitor.id, body), "Monitor updated", monitor.id, onClose)
-          }
-        />
+        {saveError && (
+          <div className="message error" role="alert" aria-live="assertive">
+            {saveError}
+          </div>
+        )}
+        <MonitorForm initialMonitor={monitor} onCancel={onClose} onSubmit={saveMonitor} />
       </section>
-    </div>
+    </div>,
+    document.body
   );
 }
 

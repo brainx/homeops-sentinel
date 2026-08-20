@@ -19,14 +19,67 @@ function readOrCreateSecret(secretFile) {
 
   fs.mkdirSync(path.dirname(secretFile), { recursive: true, mode: 0o700 });
   try {
-    const stored = fs.readFileSync(secretFile, "utf8").trim();
-    validateSecretMaterial(stored, "Stored secret material");
-    return stored;
+    return readStoredSecret(secretFile);
   } catch (error) {
     if (error.code !== "ENOENT") throw error;
-    const generated = crypto.randomBytes(32).toString("base64url");
-    fs.writeFileSync(secretFile, `${generated}\n`, { mode: 0o600 });
-    return generated;
+    return createSecretFile(secretFile);
+  }
+}
+
+function readStoredSecret(secretFile) {
+  const stored = fs.readFileSync(secretFile, "utf8").trim();
+  validateSecretMaterial(stored, "Stored secret material");
+  return stored;
+}
+
+function createSecretFile(secretFile) {
+  const generated = crypto.randomBytes(32).toString("base64url");
+  const nonce = crypto.randomBytes(8).toString("hex");
+  const temporaryFile = `${secretFile}.${process.pid}.${nonce}.tmp`;
+  let handle;
+  let prepared = false;
+  try {
+    handle = fs.openSync(temporaryFile, "wx", 0o600);
+    fs.writeFileSync(handle, `${generated}\n`, "utf8");
+    fs.fsyncSync(handle);
+    prepared = true;
+  } finally {
+    if (handle !== undefined) fs.closeSync(handle);
+    if (!prepared) removeTemporarySecret(temporaryFile);
+  }
+
+  let installed = false;
+  try {
+    fs.linkSync(temporaryFile, secretFile);
+    installed = true;
+  } catch (error) {
+    if (error.code !== "EEXIST") throw error;
+  } finally {
+    removeTemporarySecret(temporaryFile);
+  }
+
+  if (!installed) return readStoredSecret(secretFile);
+  syncDirectory(path.dirname(secretFile));
+  return generated;
+}
+
+function removeTemporarySecret(temporaryFile) {
+  try {
+    fs.unlinkSync(temporaryFile);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+}
+
+function syncDirectory(directory) {
+  let handle;
+  try {
+    handle = fs.openSync(directory, "r");
+    fs.fsyncSync(handle);
+  } catch (error) {
+    if (!["EINVAL", "EISDIR", "EPERM", "ENOTSUP"].includes(error.code)) throw error;
+  } finally {
+    if (handle !== undefined) fs.closeSync(handle);
   }
 }
 

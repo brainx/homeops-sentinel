@@ -4,17 +4,18 @@ import https from "node:https";
 import net from "node:net";
 import { APP_VERSION } from "./config.js";
 
+const DEFAULT_LOOKUP_TIMEOUT_MS = 8000;
+
 export function parseIpAddress(address) {
   const value = String(address || "")
     .toLowerCase()
     .replace(/^\[(.*)\]$/, "$1");
-  const mapped = value.match(/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/);
-  if (mapped) return { address: mapped[1], family: 4, mapped: true };
-  const mappedHex = value.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
-  if (mappedHex) {
-    const high = Number.parseInt(mappedHex[1], 16);
-    const low = Number.parseInt(mappedHex[2], 16);
-    if (Number.isFinite(high) && Number.isFinite(low)) {
+  const family = net.isIP(value);
+  if (family === 6) {
+    const groups = expandIpv6Groups(value);
+    if (groups?.slice(0, 5).every((group) => group === 0) && groups[5] === 0xffff) {
+      const high = groups[6];
+      const low = groups[7];
       return {
         address: `${(high >> 8) & 255}.${high & 255}.${(low >> 8) & 255}.${low & 255}`,
         family: 4,
@@ -22,8 +23,31 @@ export function parseIpAddress(address) {
       };
     }
   }
-  const family = net.isIP(value);
   return family ? { address: value, family, mapped: false } : null;
+}
+
+function expandIpv6Groups(address) {
+  const zoneIndex = address.lastIndexOf("%");
+  let normalized = zoneIndex >= 0 ? address.slice(0, zoneIndex) : address;
+  if (normalized.includes(".")) {
+    const separator = normalized.lastIndexOf(":");
+    const ipv4 = normalized.slice(separator + 1);
+    if (separator < 0 || net.isIP(ipv4) !== 4) return null;
+    const bytes = ipv4.split(".").map(Number);
+    normalized = `${normalized.slice(0, separator + 1)}${((bytes[0] << 8) | bytes[1]).toString(
+      16
+    )}:${((bytes[2] << 8) | bytes[3]).toString(16)}`;
+  }
+
+  const halves = normalized.split("::");
+  if (halves.length > 2) return null;
+  const left = halves[0] ? halves[0].split(":") : [];
+  const right = halves.length === 2 && halves[1] ? halves[1].split(":") : [];
+  const missing = halves.length === 2 ? 8 - left.length - right.length : 0;
+  const groups = [...left, ...Array.from({ length: missing }, () => "0"), ...right].map((group) =>
+    Number.parseInt(group, 16)
+  );
+  return groups.length === 8 && groups.every(Number.isFinite) ? groups : null;
 }
 
 export function isBlockedAddress(address, options = {}) {
@@ -44,19 +68,39 @@ export function isBlockedAddress(address, options = {}) {
     );
   }
 
-  const groups = parsed.address.split(":");
-  const firstGroup = groups[0];
-  const firstValue = Number.parseInt(firstGroup || "0", 16);
+  const groups = expandIpv6Groups(parsed.address);
+  if (!groups) return true;
+  const firstValue = groups[0];
+  const isUnspecified = groups.every((group) => group === 0);
+  const isLoopback = groups.slice(0, 7).every((group) => group === 0) && groups[7] === 1;
+  const isLocalUseTranslation =
+    groups[0] === 0x0064 && groups[1] === 0xff9b && groups[2] === 0x0001;
+  const translatedIpv4 = ipv4TranslationTarget(groups);
   return (
-    parsed.address === "::" ||
-    (options.blockLoopback === true && parsed.address === "::1") ||
+    isUnspecified ||
+    (options.blockLoopback === true && isLoopback) ||
+    (translatedIpv4 !== null && isBlockedAddress(translatedIpv4, options)) ||
     (options.blockPrivate === true && firstValue >= 0xfc00 && firstValue <= 0xfdff) ||
-    (options.blockPrivate === true &&
-      firstValue === 0x2001 &&
-      Number.parseInt(groups[1] || "0", 16) === 0x0db8) ||
+    (options.blockPrivate === true && isLocalUseTranslation) ||
+    (options.blockPrivate === true && firstValue >= 0xfec0 && firstValue <= 0xfeff) ||
+    (options.blockPrivate === true && firstValue === 0x2001 && groups[1] === 0x0db8) ||
     (firstValue >= 0xfe80 && firstValue <= 0xfebf) ||
     (firstValue >= 0xff00 && firstValue <= 0xffff)
   );
+}
+
+function ipv4TranslationTarget(groups) {
+  const isWellKnownNat64 =
+    groups[0] === 0x0064 &&
+    groups[1] === 0xff9b &&
+    groups.slice(2, 6).every((group) => group === 0);
+  const isIpv4Translatable =
+    groups.slice(0, 4).every((group) => group === 0) && groups[4] === 0xffff && groups[5] === 0;
+  if (!isWellKnownNat64 && !isIpv4Translatable) return null;
+
+  const high = groups[6];
+  const low = groups[7];
+  return `${(high >> 8) & 255}.${high & 255}.${(low >> 8) & 255}.${low & 255}`;
 }
 
 function isPrivateIpv4(parts) {
@@ -80,13 +124,19 @@ export function assertAllowedHost(host, options = {}) {
 }
 
 export async function resolveSafeAddress(host, options = {}, lookup = dns.lookup) {
+  const addresses = await resolveSafeAddresses(host, options, lookup);
+  return addresses[0];
+}
+
+async function resolveSafeAddresses(host, options = {}, lookup = dns.lookup, lookupOptions = {}) {
   const literal = parseIpAddress(host);
   if (literal) {
     assertAllowedHost(literal.address, options);
-    return { address: literal.address, family: literal.family };
+    return [{ address: literal.address, family: literal.family }];
   }
 
-  const records = await lookup(host, { all: true, verbatim: false });
+  const family = [4, 6].includes(lookupOptions.family) ? lookupOptions.family : undefined;
+  const records = await lookup(host, { all: true, verbatim: false, ...(family ? { family } : {}) });
   const addresses = Array.isArray(records) ? records : [records];
   if (addresses.length === 0) {
     throw new Error("target host did not resolve");
@@ -97,24 +147,54 @@ export async function resolveSafeAddress(host, options = {}, lookup = dns.lookup
   if (blocked) {
     throw new Error("target host is blocked");
   }
-  const selected = addresses.find((record) => record?.address && net.isIP(record.address));
-  if (!selected) {
+  const normalized = addresses
+    .filter((record) => record?.address && net.isIP(record.address))
+    .map((record) => {
+      const parsed = parseIpAddress(record.address);
+      return {
+        address: parsed?.address || record.address,
+        family: parsed?.family || record.family
+      };
+    });
+  if (normalized.length === 0) {
     throw new Error("target host did not resolve to an IP address");
   }
-  const normalized = parseIpAddress(selected.address);
-  return {
-    address: normalized?.address || selected.address,
-    family: normalized?.family || selected.family
-  };
+  return normalized;
 }
 
 export function createSafeLookup(options = {}) {
   return (hostname, lookupOptions, callback) => {
     const done = typeof lookupOptions === "function" ? lookupOptions : callback;
-    resolveSafeAddress(hostname, options)
-      .then((result) => done(null, result.address, result.family))
+    const requestedOptions =
+      lookupOptions && typeof lookupOptions === "object"
+        ? lookupOptions
+        : Number.isInteger(lookupOptions)
+          ? { family: lookupOptions }
+          : {};
+    withTimeout(
+      resolveSafeAddresses(hostname, options, dns.lookup, requestedOptions),
+      options.lookupTimeoutMs ?? options.timeoutMs ?? DEFAULT_LOOKUP_TIMEOUT_MS,
+      "target host lookup timed out"
+    )
+      .then((addresses) => {
+        if (requestedOptions.all === true) {
+          done(null, addresses);
+          return;
+        }
+        done(null, addresses[0].address, addresses[0].family);
+      })
       .catch((error) => done(error));
   };
+}
+
+function withTimeout(operation, timeoutMs, message) {
+  let timer;
+  return Promise.race([
+    operation,
+    new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+    })
+  ]).finally(() => clearTimeout(timer));
 }
 
 export function normalizeOutboundUrl(value, options = {}) {
@@ -162,9 +242,26 @@ function isRedirect(statusCode) {
 function sendJsonOnce(url, payload, options) {
   const body = JSON.stringify(payload);
   const client = url.protocol === "https:" ? https : http;
+  const timeoutMs = options.timeoutMs ?? 5000;
 
   return new Promise((resolve, reject) => {
-    const req = client.request(
+    let response;
+    let wallClockTimer;
+    let settled = false;
+    let req;
+    const settle = (error, result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(wallClockTimer);
+      if (req) req.setTimeout(0);
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(result);
+    };
+
+    req = client.request(
       {
         protocol: url.protocol,
         hostname: url.hostname,
@@ -172,29 +269,41 @@ function sendJsonOnce(url, payload, options) {
         path: `${url.pathname}${url.search}`,
         method: "POST",
         lookup: createSafeLookup(options),
-        timeout: options.timeoutMs ?? 5000,
+        timeout: timeoutMs,
         headers: {
           "content-type": "application/json",
           "content-length": Buffer.byteLength(body),
           "user-agent": `HomeOps-Sentinel/${APP_VERSION}`
         }
       },
-      (response) => {
+      (incomingResponse) => {
+        response = incomingResponse;
         response.resume();
+        response.once("error", (error) => settle(error));
+        response.once("aborted", () => settle(new Error("Webhook response was aborted")));
         response.once("end", () => {
           const statusCode = response.statusCode || 0;
           if (statusCode >= 400) {
-            reject(new Error(`Webhook returned HTTP ${statusCode}`));
+            settle(new Error(`Webhook returned HTTP ${statusCode}`));
             return;
           }
-          resolve({ statusCode, headers: response.headers });
+          settle(null, { statusCode, headers: response.headers });
         });
       }
     );
-    req.setTimeout(options.timeoutMs ?? 5000, () =>
-      req.destroy(new Error("Webhook request timed out"))
-    );
-    req.once("error", reject);
+    wallClockTimer = setTimeout(() => {
+      const error = new Error("Webhook request timed out");
+      settle(error);
+      response?.destroy(error);
+      req.destroy(error);
+    }, timeoutMs);
+    req.setTimeout(timeoutMs, () => {
+      const error = new Error("Webhook request timed out");
+      settle(error);
+      response?.destroy(error);
+      req.destroy(error);
+    });
+    req.once("error", (error) => settle(error));
     req.end(body);
   });
 }

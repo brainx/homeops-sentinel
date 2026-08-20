@@ -28,8 +28,12 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const config = getConfig();
 const store = new JsonStore(config.dataFile);
 const secretBox = createSecretBox(config.secretFile);
+const processInstanceId = createId("run");
 const manualCheckLimiter = new Map();
 let schedulerBusy = false;
+let activeSchedulerPromise = null;
+let shuttingDown = false;
+let shutdownStarted = false;
 const startedAt = new Date().toISOString();
 const schedulerDiagnostics = {
   intervalMs: 10_000,
@@ -38,6 +42,11 @@ const schedulerDiagnostics = {
   lastCompletedAt: null,
   lastError: null
 };
+const ALERT_PENDING_LEASE_MS = 20_000;
+const ALERT_RETRY_BASE_MS = 60_000;
+const ALERT_RETRY_MAX_MS = 60 * 60_000;
+const ALERT_MAX_AUTOMATIC_ATTEMPTS = 5;
+const SHUTDOWN_GRACE_MS = 30_000;
 const ID_PATTERNS = {
   monitors: /^mon_[A-Za-z0-9_-]{8,120}$/,
   backups: /^bak_[A-Za-z0-9_-]{8,120}$/,
@@ -73,14 +82,22 @@ function safeError(res, status, message) {
 }
 
 async function readJsonBody(req) {
-  if (!String(req.headers["content-type"] || "").startsWith("application/json")) {
+  const mediaType = String(req.headers["content-type"] || "")
+    .split(";", 1)[0]
+    .trim()
+    .toLowerCase();
+  if (mediaType !== "application/json") {
     throw new Error("Content-Type must be application/json");
   }
-  let raw = "";
+  const chunks = [];
+  let byteLength = 0;
   for await (const chunk of req) {
-    raw += chunk;
-    if (raw.length > 64 * 1024) throw new Error("Request body is too large");
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    byteLength += buffer.length;
+    if (byteLength > 64 * 1024) throw new Error("Request body is too large");
+    chunks.push(buffer);
   }
+  const raw = Buffer.concat(chunks, byteLength).toString("utf8");
   return raw ? JSON.parse(raw) : {};
 }
 
@@ -301,8 +318,13 @@ async function handleApi(req, res, url) {
 
   if (req.method === "POST" && url.pathname === "/api/monitors") {
     const body = await readJsonBody(req);
-    const monitor = { id: createId("mon"), ...normalizeMonitor(body) };
     const state = await store.update((current) => {
+      const monitor = {
+        id: createId("mon"),
+        ...normalizeMonitor(body, new Date(), {
+          defaultIntervalSeconds: current.settings.checkIntervalSeconds
+        })
+      };
       current.monitors.push(monitor);
       return current;
     });
@@ -357,11 +379,12 @@ async function handleApi(req, res, url) {
       return;
     }
     const result = await runMonitor(monitor);
-    const state = await store.update((latest) => {
-      recordMonitorResult(latest, id, result);
-      return latest;
-    });
-    json(res, 200, publicState(state));
+    const completed = await completeMonitorCheck(monitor, result, { requireEnabled: false });
+    if (!completed.committed) {
+      safeError(res, 409, "Monitor changed while the check was running");
+      return;
+    }
+    json(res, 200, publicState(completed.state));
     return;
   }
 
@@ -372,18 +395,13 @@ async function handleApi(req, res, url) {
     }
     const current = await store.read();
     const monitors = current.monitors.filter((item) => item.enabled);
-    const results = {};
+    let state = current;
     for (const monitor of monitors) {
-      results[monitor.id] = await runMonitor(monitor);
+      if (shuttingDown) break;
+      const result = await runMonitor(monitor);
+      const completed = await completeMonitorCheck(monitor, result, { requireEnabled: true });
+      state = completed.state;
     }
-    const state = await store.update((latest) => {
-      for (const [id, result] of Object.entries(results)) {
-        if (latest.monitors.some((monitor) => monitor.id === id)) {
-          recordMonitorResult(latest, id, result);
-        }
-      }
-      return latest;
-    });
     json(res, 200, publicState(state));
     return;
   }
@@ -621,14 +639,17 @@ async function handleApi(req, res, url) {
     const body = await readJsonBody(req);
     const state = await store.update((current) => {
       if (body.checkIntervalSeconds !== undefined) {
-        const seconds = Number.parseInt(body.checkIntervalSeconds, 10);
+        const seconds = body.checkIntervalSeconds;
         if (!Number.isInteger(seconds) || seconds < 60 || seconds > 86400) {
           throw new Error("checkIntervalSeconds must be between 60 and 86400");
         }
         current.settings.checkIntervalSeconds = seconds;
       }
       if (body.notifyOnRecovery !== undefined) {
-        current.settings.notifyOnRecovery = Boolean(body.notifyOnRecovery);
+        if (typeof body.notifyOnRecovery !== "boolean") {
+          throw new Error("notifyOnRecovery must be a boolean");
+        }
+        current.settings.notifyOnRecovery = body.notifyOnRecovery;
       }
       if (body.clearWebhook === true) {
         current.settings.alertWebhookEncrypted = null;
@@ -735,15 +756,53 @@ function validateWebhookUrl(value) {
   });
 }
 
-async function sendAlert(monitor, previous, result, state) {
-  const encrypted = state.settings.alertWebhookEncrypted;
-  if (!encrypted) return null;
-  const previousStatus = previous?.status || "unknown";
-  if (previousStatus === result.status) return null;
-  if (result.status === "healthy" && !state.settings.notifyOnRecovery) return null;
-  if (result.status === "healthy" && previousStatus === "unknown") return null;
+function monitorRevision(monitor) {
+  return JSON.stringify([
+    monitor.id,
+    monitor.name,
+    monitor.type,
+    monitor.intervalSeconds,
+    monitor.enabled,
+    monitor.updatedAt,
+    monitor.target
+  ]);
+}
 
-  return deliverWebhook(state, {
+function alertDecision(monitor, previous, result, state, options = {}) {
+  if (!state.settings.alertWebhookEncrypted) return null;
+  const previousStatus = previous?.status || "unknown";
+  const isNewTransition = previousStatus !== result.status;
+  const ledger = state.alertLedger?.[monitor.id];
+  const sameLedgerStatus = ledger?.status === result.status;
+  const pendingInThisProcess = Boolean(
+    sameLedgerStatus &&
+    ledger?.deliveryStatus === "pending" &&
+    ledger.owner === processInstanceId &&
+    pendingLeaseActive(ledger)
+  );
+  const retryingFailure = Boolean(
+    !isNewTransition &&
+    sameLedgerStatus &&
+    (ledger?.deliveryStatus === "failed" ||
+      ledger?.error ||
+      (ledger?.deliveryStatus === "pending" && !pendingInThisProcess))
+  );
+  if (!isNewTransition && pendingInThisProcess) return null;
+  if (!isNewTransition && !retryingFailure) return null;
+  if (retryingFailure && options.allowAlertRetry === false) return null;
+  if (result.status === "healthy" && !state.settings.notifyOnRecovery) return null;
+  const alertPreviousStatus = retryingFailure
+    ? ledger.previousStatus || previousStatus
+    : previousStatus;
+  if (result.status === "healthy" && alertPreviousStatus === "unknown") return null;
+  return {
+    previousStatus: alertPreviousStatus,
+    previousAttemptCount: retryingFailure ? alertAttemptCount(ledger) : 0
+  };
+}
+
+function buildMonitorAlertPayload(monitor, result, previousStatus) {
+  return {
     app: APP_NAME,
     kind: "monitor",
     monitor: {
@@ -755,7 +814,261 @@ async function sendAlert(monitor, previous, result, state) {
     status: result.status,
     message: result.message,
     checkedAt: result.checkedAt
+  };
+}
+
+function createPendingAlert(payload, previousAttemptCount = 0) {
+  const attemptedAt = new Date().toISOString();
+  return {
+    status: payload.status,
+    previousStatus: payload.previousStatus,
+    deliveryStatus: "pending",
+    attemptId: createId("alert"),
+    attemptCount: Math.max(0, previousAttemptCount) + 1,
+    attemptedAt,
+    sentAt: null,
+    completedAt: null,
+    nextAttemptAt: null,
+    owner: processInstanceId,
+    error: null,
+    payload
+  };
+}
+
+function supersedeRetryableAlert(state, monitorId, result) {
+  const ledger = state.alertLedger?.[monitorId];
+  const retryable = Boolean(
+    ledger &&
+    (ledger.deliveryStatus === "pending" || ledger.deliveryStatus === "failed" || ledger.error)
+  );
+  if (!retryable) return;
+  state.alertLedger[monitorId] = {
+    ...ledger,
+    deliveryStatus: "superseded",
+    supersededAt: result.checkedAt,
+    supersededByStatus: result.status,
+    nextAttemptAt: null,
+    owner: null,
+    error: null
+  };
+}
+
+function alertAttemptCount(ledger) {
+  return Number.isInteger(ledger?.attemptCount) && ledger.attemptCount > 0
+    ? ledger.attemptCount
+    : 1;
+}
+
+function pendingLeaseActive(ledger, now = Date.now()) {
+  const attemptedAt = new Date(ledger?.attemptedAt || ledger?.sentAt || 0).getTime();
+  return Number.isFinite(attemptedAt) && now - attemptedAt < ALERT_PENDING_LEASE_MS;
+}
+
+function abandonedPendingAttempt(ledger, now = Date.now()) {
+  return Boolean(
+    ledger?.deliveryStatus === "pending" &&
+    (ledger.owner !== processInstanceId || !pendingLeaseActive(ledger, now))
+  );
+}
+
+function pendingRetryExhausted(ledger, now = Date.now()) {
+  return Boolean(
+    abandonedPendingAttempt(ledger, now) &&
+    alertAttemptCount(ledger) >= ALERT_MAX_AUTOMATIC_ATTEMPTS
+  );
+}
+
+function automaticRetryDue(ledger, now = Date.now()) {
+  if (!ledger || alertAttemptCount(ledger) >= ALERT_MAX_AUTOMATIC_ATTEMPTS) return false;
+  if (ledger.deliveryStatus === "pending") {
+    return abandonedPendingAttempt(ledger, now);
+  }
+  if (ledger.deliveryStatus !== "failed" && !ledger.error) return false;
+  const nextAttemptAt = new Date(ledger.nextAttemptAt || 0).getTime();
+  return !Number.isFinite(nextAttemptAt) || nextAttemptAt <= now;
+}
+
+function retryDelayMs(attemptCount) {
+  return Math.min(ALERT_RETRY_MAX_MS, ALERT_RETRY_BASE_MS * 2 ** Math.max(0, attemptCount - 1));
+}
+
+function safePersistedAlertPayload(payload, monitorId, status) {
+  const checkedAt = new Date(payload?.checkedAt || "");
+  if (
+    !payload ||
+    typeof payload !== "object" ||
+    payload.kind !== "monitor" ||
+    payload.monitor?.id !== monitorId ||
+    payload.status !== status ||
+    typeof payload.monitor?.name !== "string" ||
+    typeof payload.monitor?.type !== "string" ||
+    typeof payload.previousStatus !== "string" ||
+    typeof payload.message !== "string" ||
+    !Number.isFinite(checkedAt.getTime())
+  ) {
+    return null;
+  }
+  return {
+    app: APP_NAME,
+    kind: "monitor",
+    monitor: {
+      id: monitorId,
+      name: payload.monitor.name.slice(0, 80),
+      type: payload.monitor.type.slice(0, 16)
+    },
+    previousStatus: payload.previousStatus.slice(0, 20),
+    status: String(status).slice(0, 20),
+    message: payload.message.slice(0, 500),
+    checkedAt: checkedAt.toISOString()
+  };
+}
+
+function payloadForAlertLedger(state, monitorId, ledger) {
+  const persisted = safePersistedAlertPayload(ledger?.payload, monitorId, ledger?.status);
+  if (persisted) return persisted;
+
+  const monitor = state.monitors.find((item) => item.id === monitorId);
+  const result = state.results?.[monitorId];
+  if (!monitor || !result || result.status !== ledger?.status) return null;
+  return buildMonitorAlertPayload(monitor, result, ledger.previousStatus || "unknown");
+}
+
+async function completeMonitorCheck(snapshot, result, options = {}) {
+  const expectedRevision = monitorRevision(snapshot);
+  let committedMonitor = null;
+  let decision = null;
+  let state = await store.update((latest) => {
+    const currentMonitor = latest.monitors.find((monitor) => monitor.id === snapshot.id);
+    if (
+      !currentMonitor ||
+      (options.requireEnabled === true && !currentMonitor.enabled) ||
+      monitorRevision(currentMonitor) !== expectedRevision
+    ) {
+      return latest;
+    }
+    const previous = latest.results[currentMonitor.id];
+    const isNewTransition = (previous?.status || "unknown") !== result.status;
+    recordMonitorResult(latest, currentMonitor.id, result);
+    committedMonitor = structuredClone(currentMonitor);
+    decision = alertDecision(currentMonitor, previous, result, latest, options);
+    if (decision) {
+      const payload = buildMonitorAlertPayload(currentMonitor, result, decision.previousStatus);
+      decision = createPendingAlert(payload, decision.previousAttemptCount);
+      latest.alertLedger[currentMonitor.id] = decision;
+    } else if (isNewTransition) {
+      supersedeRetryableAlert(latest, currentMonitor.id, result);
+    }
+    return latest;
   });
+
+  if (!committedMonitor) return { committed: false, state };
+  if (!decision) return { committed: true, state };
+  state = await deliverMonitorAlert(committedMonitor.id, decision, state);
+  return { committed: true, state };
+}
+
+async function deliverMonitorAlert(monitorId, pendingAlert, state) {
+  const { payload } = pendingAlert;
+  let delivery = null;
+  let deliveryError = null;
+  try {
+    delivery = await deliverWebhook(state, payload);
+  } catch (error) {
+    deliveryError = error instanceof Error ? error.message : "Alert delivery failed";
+  }
+
+  const completedAt = new Date().toISOString();
+  return store.update((latest) => {
+    const currentLedger = latest.alertLedger[monitorId];
+    if (
+      currentLedger?.deliveryStatus === "pending" &&
+      currentLedger.attemptId === pendingAlert.attemptId
+    ) {
+      latest.alertLedger[monitorId] = {
+        ...currentLedger,
+        deliveryStatus: deliveryError ? "failed" : "delivered",
+        sentAt: deliveryError ? null : completedAt,
+        completedAt,
+        nextAttemptAt: deliveryError
+          ? new Date(
+              new Date(completedAt).getTime() + retryDelayMs(pendingAlert.attemptCount)
+            ).toISOString()
+          : null,
+        error: deliveryError
+      };
+    }
+    appendAlertEvent(latest, {
+      kind: "monitor",
+      deliveryStatus: deliveryError ? "failed" : "delivered",
+      createdAt: completedAt,
+      monitorId,
+      monitorName: payload.monitor.name,
+      monitorStatus: payload.status,
+      message: payload.message,
+      statusCode: delivery?.statusCode || null,
+      error: deliveryError
+    });
+    return latest;
+  });
+}
+
+async function claimOutboxAlert(monitorId) {
+  let pendingAlert = null;
+  const state = await store.update((latest) => {
+    const ledger = latest.alertLedger?.[monitorId];
+    const payload = payloadForAlertLedger(latest, monitorId, ledger);
+    if (pendingRetryExhausted(ledger)) {
+      const completedAt = new Date().toISOString();
+      const error = "Automatic retry limit reached after an interrupted alert delivery";
+      latest.alertLedger[monitorId] = {
+        ...ledger,
+        deliveryStatus: "failed",
+        sentAt: null,
+        completedAt,
+        nextAttemptAt: null,
+        error
+      };
+      const monitor = latest.monitors.find((item) => item.id === monitorId);
+      appendAlertEvent(latest, {
+        kind: "monitor",
+        deliveryStatus: "failed",
+        createdAt: completedAt,
+        monitorId,
+        monitorName: payload?.monitor.name || monitor?.name || null,
+        monitorStatus: payload?.status || ledger.status || null,
+        message: payload?.message || "Alert delivery was interrupted",
+        error
+      });
+      return latest;
+    }
+    if (!latest.settings.alertWebhookEncrypted || !automaticRetryDue(ledger)) return latest;
+    if (!payload) return latest;
+    pendingAlert = createPendingAlert(payload, alertAttemptCount(ledger));
+    latest.alertLedger[monitorId] = pendingAlert;
+    return latest;
+  });
+  return { pendingAlert, state };
+}
+
+async function drainAlertOutbox() {
+  const processedMonitorIds = new Set();
+  while (!shuttingDown) {
+    const snapshot = await store.read();
+    const candidate = Object.entries(snapshot.alertLedger || {}).find(
+      ([monitorId, ledger]) =>
+        !processedMonitorIds.has(monitorId) &&
+        (pendingRetryExhausted(ledger) ||
+          (automaticRetryDue(ledger) && payloadForAlertLedger(snapshot, monitorId, ledger)))
+    );
+    if (!candidate) break;
+
+    const monitorId = candidate[0];
+    processedMonitorIds.add(monitorId);
+    const claimed = await claimOutboxAlert(monitorId);
+    if (!claimed.pendingAlert) continue;
+    await deliverMonitorAlert(monitorId, claimed.pendingAlert, claimed.state);
+  }
+  return processedMonitorIds;
 }
 
 async function schedulerTick() {
@@ -764,58 +1077,22 @@ async function schedulerTick() {
   schedulerDiagnostics.busy = true;
   schedulerDiagnostics.lastStartedAt = new Date().toISOString();
   try {
+    const processedAlertMonitors = await drainAlertOutbox();
     const current = await store.read();
     const now = Date.now();
     for (const monitor of current.monitors) {
+      if (shuttingDown) break;
       if (!monitor.enabled) continue;
+      if (processedAlertMonitors.has(monitor.id)) continue;
       const previous = current.results[monitor.id];
       const dueMs = (monitor.intervalSeconds || current.settings.checkIntervalSeconds) * 1000;
       const last = previous?.checkedAt ? new Date(previous.checkedAt).getTime() : 0;
       if (last && now - last < dueMs) continue;
 
       const result = await runMonitor(monitor);
-      await store.update(async (latest) => {
-        const latestPrevious = latest.results[monitor.id];
-        recordMonitorResult(latest, monitor.id, result);
-        try {
-          const delivery = await sendAlert(monitor, latestPrevious, result, latest);
-          if (delivery) {
-            const sentAt = new Date().toISOString();
-            latest.alertLedger[monitor.id] = {
-              status: result.status,
-              sentAt,
-              error: null
-            };
-            appendAlertEvent(latest, {
-              kind: "monitor",
-              deliveryStatus: "delivered",
-              createdAt: sentAt,
-              monitorId: monitor.id,
-              monitorName: monitor.name,
-              monitorStatus: result.status,
-              message: result.message,
-              statusCode: delivery.statusCode
-            });
-          }
-        } catch (error) {
-          const sentAt = new Date().toISOString();
-          latest.alertLedger[monitor.id] = {
-            status: result.status,
-            sentAt,
-            error: error instanceof Error ? error.message : "Alert delivery failed"
-          };
-          appendAlertEvent(latest, {
-            kind: "monitor",
-            deliveryStatus: "failed",
-            createdAt: sentAt,
-            monitorId: monitor.id,
-            monitorName: monitor.name,
-            monitorStatus: result.status,
-            message: result.message,
-            error: error instanceof Error ? error.message : "Alert delivery failed"
-          });
-        }
-        return latest;
+      await completeMonitorCheck(monitor, result, {
+        requireEnabled: true,
+        allowAlertRetry: false
       });
     }
     schedulerDiagnostics.lastError = null;
@@ -828,6 +1105,16 @@ async function schedulerTick() {
     schedulerDiagnostics.busy = false;
     schedulerDiagnostics.lastCompletedAt = new Date().toISOString();
   }
+}
+
+function triggerSchedulerTick() {
+  if (shuttingDown) return Promise.resolve();
+  if (activeSchedulerPromise) return activeSchedulerPromise;
+  const promise = schedulerTick().finally(() => {
+    if (activeSchedulerPromise === promise) activeSchedulerPromise = null;
+  });
+  activeSchedulerPromise = promise;
+  return promise;
 }
 
 const server = http.createServer(async (req, res) => {
@@ -853,12 +1140,45 @@ server.listen(config.port, config.host, () => {
   console.log(`${APP_NAME} ${APP_VERSION} listening on ${config.host}:${config.port}`);
 });
 
-setInterval(schedulerTick, 10_000).unref();
-schedulerTick();
+const schedulerInterval = setInterval(() => void triggerSchedulerTick(), 10_000);
+schedulerInterval.unref();
+void triggerSchedulerTick();
 
-process.on("SIGTERM", () => {
-  server.close(() => process.exit(0));
-});
+process.on("SIGTERM", () => void shutdown("SIGTERM"));
+process.on("SIGINT", () => void shutdown("SIGINT"));
+
+async function shutdown(signal) {
+  if (shutdownStarted) return;
+  shutdownStarted = true;
+  shuttingDown = true;
+  clearInterval(schedulerInterval);
+
+  const closeServer = new Promise((resolve, reject) => {
+    server.close((error) => (error ? reject(error) : resolve()));
+  });
+  const finishWork = (async () => {
+    await activeSchedulerPromise;
+    await store.whenIdle();
+  })();
+  let timeout;
+  try {
+    await Promise.race([
+      Promise.all([closeServer, finishWork]),
+      new Promise((_, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error("Graceful shutdown timed out")),
+          SHUTDOWN_GRACE_MS
+        );
+      })
+    ]);
+    clearTimeout(timeout);
+    process.exit(0);
+  } catch (error) {
+    clearTimeout(timeout);
+    console.error(`${signal} shutdown failed`, error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+}
 
 function isClientSafeError(message) {
   return [

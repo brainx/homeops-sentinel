@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { verifyReleaseImage } from "./release-image.mjs";
 
 const appDir = "umbrel-app-store/homeops-sentinel";
 const composePath = path.join(appDir, "docker-compose.yml");
@@ -96,6 +97,18 @@ if (!expectedImagePattern.test(compose)) {
     "docker-compose.yml image must match the app version and include a full sha256 digest"
   );
 }
+let imageVerification = null;
+try {
+  imageVerification = verifyReleaseImage({
+    compose,
+    version: packageJson.version,
+    repositoryUrl: manifestField(manifest, "repo")
+  });
+} catch (error) {
+  failures.push(
+    `release image verification failed: ${error instanceof Error ? error.message : String(error)}`
+  );
+}
 if (compose.includes("REPLACE_"))
   failures.push("docker-compose.yml still contains a replacement marker");
 if (/^\s*ports\s*:/m.test(compose))
@@ -158,7 +171,16 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("release package checks passed");
+if (imageVerification) {
+  const log = imageVerification.verified ? console.log : console.warn;
+  log(imageVerification.message);
+}
+console.log(
+  imageVerification?.verified
+    ? "release package checks passed"
+    : "local release package checks completed; registry verification was non-gating"
+);
+if (!imageVerification?.verified) process.exitCode = 1;
 
 async function walk(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });

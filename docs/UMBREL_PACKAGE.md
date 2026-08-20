@@ -61,6 +61,11 @@ Inspect the digest before updating the package:
 docker buildx imagetools inspect ghcr.io/<owner>/homeops-sentinel-umbrel:<version>
 ```
 
+`npm run check:release` also resolves the version tag, verifies that its raw OCI index matches the
+pinned digest, and requires both `linux/amd64` and `linux/arm64`. Registry verification is mandatory
+for a passing release gate; `HOMEOPS_RELEASE_VERIFY_MODE=offline` performs only the local package
+checks and exits nonzero as a deliberately non-gating result.
+
 ## Release Evidence
 
 Current package digest evidence:

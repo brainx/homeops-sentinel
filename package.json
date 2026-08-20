@@ -1,6 +1,6 @@
 {
   "name": "homeops-sentinel",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -9,7 +9,7 @@
     "dev": "node scripts/dev.mjs",
     "build": "vite build",
     "start": "node server/index.js",
-    "test": "node tests/store.test.mjs && node tests/monitor.test.mjs && node tests/security.test.mjs",
+    "test": "node tests/store.test.mjs && node tests/monitor.test.mjs && node tests/security.test.mjs && node tests/server-regression.test.mjs && node --test tests/frontend-tooling.test.mjs",
     "lint": "npm run lint:eslint && npm run lint:repo",
     "lint:eslint": "eslint . --max-warnings=0",
     "lint:repo": "node scripts/lint.mjs",

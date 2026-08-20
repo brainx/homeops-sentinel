@@ -1,5 +1,6 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
+import { verifyReleaseImage } from "./release-image.mjs";
 
 const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
 const manifest = fs.readFileSync("umbrel-app-store/homeops-sentinel/umbrel-app.yml", "utf8");
@@ -50,6 +51,23 @@ check(
   digestPattern.test(compose),
   "Umbrel image digest is missing or invalid"
 );
+try {
+  const imageVerification = verifyReleaseImage({
+    compose,
+    version: packageJson.version,
+    repositoryUrl: manifestField("repo")
+  });
+  if (imageVerification.verified) {
+    complete.push(imageVerification.message);
+  } else {
+    warnings.push(imageVerification.message);
+    blockers.push("release image digest has not been verified against registry manifest evidence");
+  }
+} catch (error) {
+  blockers.push(
+    `release image verification failed: ${error instanceof Error ? error.message : String(error)}`
+  );
+}
 if (compose.includes("REPLACE_"))
   blockers.push("Umbrel Compose still contains a replacement marker");
 
