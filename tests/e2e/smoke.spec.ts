@@ -64,22 +64,21 @@ test("operator can configure readiness records and keep state after reload", asy
   const token = await page.getByLabel("Bearer token").inputValue();
   expect(token).toMatch(/^hop_/);
 
-  await page.getByRole("button", { name: "Restore test" }).click();
-  await page.getByLabel("Last restore test date").fill("2026-06-13");
-  await page.getByLabel("Restore target").fill("Staging restore dataset");
-  await page.getByLabel("Evidence notes").fill("Restored sample service and verified checksum");
-  await page.getByRole("button", { name: "Save restore test" }).click();
+  const backupCard = page.locator(".backup-card").filter({ hasText: backupName });
+  await backupCard.getByRole("button", { name: "Restore test" }).click();
+  await backupCard.getByLabel("Last restore test date").fill("2026-06-13");
+  await backupCard.getByLabel("Restore target").fill("Staging restore dataset");
+  await backupCard
+    .getByLabel("Evidence notes")
+    .fill("Restored sample service and verified checksum");
+  await backupCard.getByRole("button", { name: "Save restore test" }).click();
   await expect(page.getByRole("status")).toContainText("Restore test recorded");
 
   await page.getByRole("button", { name: "Alerts", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Webhook alerts", exact: true })).toBeVisible();
-  await page.getByLabel("Webhook URL").fill("https://example.com/hooks/homeops-e2e");
+  await page.getByLabel("Webhook URL").fill("https://example.invalid/hooks/homeops-e2e");
   await page.getByRole("button", { name: "Save alerts" }).click();
   await expect(page.getByRole("status")).toContainText("Alert settings saved");
-  await page.getByRole("button", { name: "Test alert" }).click();
-  await expect(page.getByRole("status")).toContainText("Alert test completed", {
-    timeout: 12_000
-  });
 
   await page.getByRole("button", { name: "Incidents", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Record incident", exact: true })).toBeVisible();

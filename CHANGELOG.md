@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.1 - 2026-08-20
+
+- Made alert transitions durable across manual checks, delivery failures, restarts, and graceful shutdowns with bounded retries and stale-attempt protection.
+- Hardened outbound monitor and webhook networking against IPv6 address-policy bypasses, stalled DNS and socket operations, and leaked TCP/TLS connections.
+- Fixed hostname checks on Node.js 22 and corrected TLS expiry, backup freshness, unknown-state, and default-interval calculations.
+- Made state recovery and first-run secret creation safe under concurrent processes while strictly validating persisted maps and API configuration.
+- Preserved unsaved form drafts during polling, surfaced delivery and save failures accurately, and added complete keyboard focus management to monitor dialogs.
+- Made custom development ports reliable and ensured the development coordinator cleans up child processes during exit and shutdown.
+- Strengthened release verification to validate the versioned registry tag, pinned OCI digest, repository owner, and required AMD64/ARM64 platforms.
+- Refreshed the dependency lock to remove known development-tool advisories and made pull-request dependency and secret scans self-contained.
+- Added focused regression, security, lifecycle, accessibility, and release-tooling coverage to the default test path.
+
 ## 0.2.0 - 2026-07-20
 
 - Added bounded per-monitor check history with availability, average latency, and recent-check timelines.

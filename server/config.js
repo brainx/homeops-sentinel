@@ -7,7 +7,8 @@ export const APP_VERSION = JSON.parse(
 ).version;
 
 export function getConfig() {
-  const port = Number.parseInt(process.env.PORT || "4747", 10);
+  const portValue = process.env.PORT || "4747";
+  const port = /^\d+$/.test(portValue) ? Number(portValue) : Number.NaN;
   const host = process.env.HOST || "127.0.0.1";
   const dataDir = process.env.HOMEOPS_DATA_DIR || path.resolve(process.cwd(), "data");
   const staticDir = process.env.HOMEOPS_STATIC_DIR || path.resolve(process.cwd(), "dist");

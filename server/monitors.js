@@ -8,11 +8,16 @@ import { APP_VERSION } from "./config.js";
 import { assertAllowedHost, createSafeLookup, normalizeOutboundUrl } from "./network.js";
 
 const MONITOR_TYPES = new Set(["http", "tcp", "dns", "tls"]);
+const MONITOR_STATUSES = new Set(["healthy", "degraded", "down"]);
 const DNS_TYPES = new Set(["A", "AAAA", "CNAME", "MX", "TXT"]);
 const MAX_NAME_LENGTH = 80;
 const DEFAULT_INTERVAL_SECONDS = 300;
 const MIN_INTERVAL_SECONDS = 30;
 const MAX_INTERVAL_SECONDS = 86400;
+const HTTP_TIMEOUT_MS = 8000;
+const TCP_TIMEOUT_MS = 6000;
+const DNS_TIMEOUT_MS = 8000;
+const TLS_TIMEOUT_MS = 8000;
 const RESTORE_TEST_RESULTS = new Set(["not_tested", "passed", "failed"]);
 const DEFAULT_RESTORE_TEST_INTERVAL_DAYS = 90;
 const MIN_RESTORE_TEST_INTERVAL_DAYS = 1;
@@ -29,8 +34,8 @@ export function assertString(value, field, maxLength = 200) {
   return trimmed;
 }
 
-function normalizeInterval(value) {
-  const parsed = Number.parseInt(value ?? DEFAULT_INTERVAL_SECONDS, 10);
+function normalizeInterval(value, defaultValue = DEFAULT_INTERVAL_SECONDS) {
+  const parsed = parseExactInteger(value ?? defaultValue);
   if (!Number.isInteger(parsed) || parsed < MIN_INTERVAL_SECONDS || parsed > MAX_INTERVAL_SECONDS) {
     throw new Error(
       `intervalSeconds must be between ${MIN_INTERVAL_SECONDS} and ${MAX_INTERVAL_SECONDS}`
@@ -39,12 +44,31 @@ function normalizeInterval(value) {
   return parsed;
 }
 
+function parseExactInteger(value) {
+  if (!["number", "string"].includes(typeof value)) return Number.NaN;
+  if (typeof value === "string" && !value.trim()) return Number.NaN;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && Number.isInteger(parsed) ? parsed : Number.NaN;
+}
+
 function normalizePort(value) {
-  const port = Number.parseInt(value, 10);
+  const port = parseExactInteger(value);
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
     throw new Error("port must be between 1 and 65535");
   }
   return port;
+}
+
+function normalizeWarningDays(value) {
+  if (value === undefined || value === null || value === "") return 21;
+  if (!["number", "string"].includes(typeof value)) {
+    throw new Error("warningDays must be a finite integer");
+  }
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed)) {
+    throw new Error("warningDays must be a finite integer");
+  }
+  return Math.max(1, Math.min(90, parsed));
 }
 
 function normalizeHost(value) {
@@ -66,7 +90,7 @@ function normalizeOptionalString(value, maxLength) {
 }
 
 function normalizeRestoreTestInterval(value) {
-  const parsed = Number.parseInt(value ?? DEFAULT_RESTORE_TEST_INTERVAL_DAYS, 10);
+  const parsed = parseExactInteger(value ?? DEFAULT_RESTORE_TEST_INTERVAL_DAYS);
   if (
     !Number.isInteger(parsed) ||
     parsed < MIN_RESTORE_TEST_INTERVAL_DAYS ||
@@ -130,15 +154,18 @@ export function normalizeRestoreTest(input, now = new Date()) {
   return restoreTest;
 }
 
-export function normalizeMonitor(input, now = new Date()) {
+export function normalizeMonitor(input, now = new Date(), options = {}) {
   const type = assertString(input?.type, "type", 16).toLowerCase();
   if (!MONITOR_TYPES.has(type)) throw new Error("type must be http, tcp, dns, or tls");
+  if (input?.enabled !== undefined && typeof input.enabled !== "boolean") {
+    throw new Error("enabled must be a boolean");
+  }
 
   const monitor = {
     name: assertString(input?.name, "name", MAX_NAME_LENGTH),
     type,
-    intervalSeconds: normalizeInterval(input?.intervalSeconds),
-    enabled: input?.enabled !== false,
+    intervalSeconds: normalizeInterval(input?.intervalSeconds, options.defaultIntervalSeconds),
+    enabled: input?.enabled ?? true,
     createdAt: input?.createdAt || now.toISOString(),
     updatedAt: now.toISOString(),
     target: {}
@@ -168,8 +195,8 @@ export function normalizeMonitor(input, now = new Date()) {
   if (type === "tls") {
     monitor.target = {
       host: normalizeHost(input?.target?.host),
-      port: normalizePort(input?.target?.port || 443),
-      warningDays: Math.max(1, Math.min(90, Number.parseInt(input?.target?.warningDays || 21, 10)))
+      port: normalizePort(input?.target?.port ?? 443),
+      warningDays: normalizeWarningDays(input?.target?.warningDays)
     };
   }
 
@@ -177,14 +204,14 @@ export function normalizeMonitor(input, now = new Date()) {
 }
 
 export function normalizeBackup(input, now = new Date()) {
-  const scheduleHours = Number.parseInt(input?.scheduleHours ?? 24, 10);
+  const scheduleHours = parseExactInteger(input?.scheduleHours ?? 24);
   if (!Number.isInteger(scheduleHours) || scheduleHours < 1 || scheduleHours > 2160) {
     throw new Error("scheduleHours must be between 1 and 2160");
   }
   return {
     name: assertString(input?.name, "name", MAX_NAME_LENGTH),
     scheduleHours,
-    lastSuccessAt: input?.lastSuccessAt || null,
+    lastSuccessAt: normalizeTimestamp(input?.lastSuccessAt, "last success date", now),
     notes: typeof input?.notes === "string" ? input.notes.trim().slice(0, 400) : "",
     restoreTest: normalizeRestoreTest(input, now),
     createdAt: input?.createdAt || now.toISOString(),
@@ -199,7 +226,7 @@ function backupFreshnessStatus(backup, now = new Date()) {
 
   const last = new Date(backup.lastSuccessAt).getTime();
   const ageHours = (now.getTime() - last) / 36e5;
-  if (!Number.isFinite(ageHours)) {
+  if (!Number.isFinite(ageHours) || ageHours < 0) {
     return { status: "degraded", message: "Last backup timestamp is invalid" };
   }
   if (ageHours > backup.scheduleHours * 1.2) {
@@ -297,14 +324,14 @@ export function backupStatus(backup, now = new Date()) {
   return freshness;
 }
 
-export async function runMonitor(monitor) {
+export async function runMonitor(monitor, options = {}) {
   const started = performance.now();
   try {
     let result;
-    if (monitor.type === "http") result = await checkHttp(monitor);
-    if (monitor.type === "tcp") result = await checkTcp(monitor);
-    if (monitor.type === "dns") result = await checkDns(monitor);
-    if (monitor.type === "tls") result = await checkTls(monitor);
+    if (monitor.type === "http") result = await checkHttp(monitor, options);
+    if (monitor.type === "tcp") result = await checkTcp(monitor, options);
+    if (monitor.type === "dns") result = await checkDns(monitor, options);
+    if (monitor.type === "tls") result = await checkTls(monitor, options);
     const latencyMs = Math.round(performance.now() - started);
     return {
       ...result,
@@ -321,137 +348,212 @@ export async function runMonitor(monitor) {
   }
 }
 
-async function checkHttp(monitor) {
+async function checkHttp(monitor, options = {}) {
   const parsed = new URL(monitor.target.url);
   assertAllowedHost(parsed.hostname);
   const client = parsed.protocol === "https:" ? https : http;
+  const timeoutMs = options.httpTimeoutMs ?? HTTP_TIMEOUT_MS;
   return new Promise((resolve, reject) => {
-    const req = client.request(
+    let wallClockTimer;
+    let settled = false;
+    let req;
+    const settle = (error, result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(wallClockTimer);
+      if (req) req.setTimeout(0);
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(result);
+    };
+    const handleTimeout = () => {
+      if (settled) return;
+      const error = new Error("HTTP request timed out");
+      settle(error);
+      req.destroy(error);
+    };
+
+    req = client.request(
       {
         protocol: parsed.protocol,
         hostname: parsed.hostname,
         port: parsed.port || undefined,
         path: `${parsed.pathname}${parsed.search}`,
         method: "GET",
-        lookup: createSafeLookup(),
+        lookup: createSafeLookup({ timeoutMs }),
         headers: {
           "user-agent": `HomeOps-Sentinel/${APP_VERSION}`
         }
       },
       (response) => {
-        response.resume();
         const statusCode = response.statusCode || 0;
-        if (statusCode >= 200 && statusCode < 400) {
-          resolve({ status: "healthy", message: `HTTP ${statusCode}` });
-          return;
-        }
-        if (statusCode >= 400 && statusCode < 500) {
-          resolve({ status: "degraded", message: `HTTP ${statusCode}` });
-          return;
-        }
-        resolve({ status: "down", message: `HTTP ${statusCode}` });
+        const result =
+          statusCode >= 200 && statusCode < 400
+            ? { status: "healthy", message: `HTTP ${statusCode}` }
+            : statusCode >= 400 && statusCode < 500
+              ? { status: "degraded", message: `HTTP ${statusCode}` }
+              : { status: "down", message: `HTTP ${statusCode}` };
+        settle(null, result);
+        response.destroy();
       }
     );
-    req.setTimeout(8000, () => req.destroy(new Error("HTTP request timed out")));
-    req.once("error", reject);
+    wallClockTimer = setTimeout(handleTimeout, timeoutMs);
+    req.setTimeout(timeoutMs, handleTimeout);
+    req.once("error", (error) => settle(error));
     req.end();
   });
 }
 
-function checkTcp(monitor) {
+function checkTcp(monitor, options = {}) {
   assertAllowedHost(monitor.target.host);
+  const timeoutMs = options.tcpTimeoutMs ?? TCP_TIMEOUT_MS;
   return new Promise((resolve, reject) => {
-    const socket = net.createConnection({
+    let wallClockTimer;
+    let settled = false;
+    let socket;
+    const settle = (error, result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(wallClockTimer);
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(result);
+    };
+    const handleTimeout = () => {
+      if (settled) return;
+      const error = new Error("TCP connection timed out");
+      settle(error);
+      socket.destroy(error);
+    };
+
+    socket = net.createConnection({
       host: monitor.target.host,
       port: monitor.target.port,
-      timeout: 6000,
-      lookup: createSafeLookup()
+      timeout: timeoutMs,
+      lookup: createSafeLookup({ timeoutMs })
     });
+    wallClockTimer = setTimeout(handleTimeout, timeoutMs);
     socket.once("connect", () => {
-      socket.end();
-      resolve({ status: "healthy", message: `TCP ${monitor.target.port} reachable` });
-    });
-    socket.once("timeout", () => {
+      settle(null, { status: "healthy", message: `TCP ${monitor.target.port} reachable` });
       socket.destroy();
-      reject(new Error("TCP connection timed out"));
     });
-    socket.once("error", (error) => reject(error));
+    socket.once("timeout", handleTimeout);
+    socket.once("error", (error) => settle(error));
   });
 }
 
-async function checkDns(monitor) {
-  const answers = await dns.resolve(monitor.target.hostname, monitor.target.recordType);
+async function checkDns(monitor, options = {}) {
+  const answers = await withTimeout(
+    dns.resolve(monitor.target.hostname, monitor.target.recordType),
+    options.dnsTimeoutMs ?? DNS_TIMEOUT_MS,
+    "DNS request timed out"
+  );
   if (!answers || answers.length === 0) {
     return { status: "down", message: "No DNS records returned" };
   }
   return { status: "healthy", message: `${answers.length} ${monitor.target.recordType} record(s)` };
 }
 
-function checkTls(monitor) {
+function withTimeout(operation, timeoutMs, message) {
+  let timer;
+  return Promise.race([
+    operation,
+    new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+    })
+  ]).finally(() => clearTimeout(timer));
+}
+
+function checkTls(monitor, options = {}) {
   assertAllowedHost(monitor.target.host);
+  const timeoutMs = options.tlsTimeoutMs ?? TLS_TIMEOUT_MS;
   return new Promise((resolve, reject) => {
-    const socket = tls.connect({
+    let wallClockTimer;
+    let settled = false;
+    let socket;
+    const settle = (error, result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(wallClockTimer);
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(result);
+    };
+    const handleTimeout = () => {
+      if (settled) return;
+      const error = new Error("TLS connection timed out");
+      settle(error);
+      socket.destroy(error);
+    };
+
+    socket = tls.connect({
       host: monitor.target.host,
       port: monitor.target.port,
       servername: monitor.target.host,
       rejectUnauthorized: false,
-      timeout: 8000,
-      lookup: createSafeLookup()
+      timeout: timeoutMs,
+      lookup: createSafeLookup({ timeoutMs })
     });
+    wallClockTimer = setTimeout(handleTimeout, timeoutMs);
 
     socket.once("secureConnect", () => {
       const certificate = socket.getPeerCertificate();
-      socket.end();
+      socket.destroy();
       if (!certificate || !certificate.valid_to) {
-        resolve({ status: "down", message: "No certificate returned" });
+        settle(null, { status: "down", message: "No certificate returned" });
         return;
       }
       const expiresAt = new Date(certificate.valid_to);
-      const daysLeft = Math.ceil((expiresAt.getTime() - Date.now()) / 864e5);
-      if (!Number.isFinite(daysLeft) || daysLeft < 0) {
-        resolve({ status: "down", message: "Certificate expired" });
+      const millisecondsLeft = expiresAt.getTime() - Date.now();
+      if (!Number.isFinite(millisecondsLeft) || millisecondsLeft <= 0) {
+        settle(null, { status: "down", message: "Certificate expired" });
         return;
       }
+      const daysLeft = Math.ceil(millisecondsLeft / 864e5);
       if (!socket.authorized) {
-        resolve({
+        settle(null, {
           status: "degraded",
           message: `Certificate not trusted: ${socket.authorizationError || "unknown reason"}`
         });
         return;
       }
       if (daysLeft <= monitor.target.warningDays) {
-        resolve({ status: "degraded", message: `Certificate expires in ${daysLeft}d` });
+        settle(null, {
+          status: "degraded",
+          message: `Certificate expires in ${daysLeft}d`
+        });
         return;
       }
-      resolve({ status: "healthy", message: `Certificate valid for ${daysLeft}d` });
+      settle(null, { status: "healthy", message: `Certificate valid for ${daysLeft}d` });
     });
 
-    socket.once("timeout", () => {
-      socket.destroy();
-      reject(new Error("TLS connection timed out"));
-    });
-    socket.once("error", (error) => reject(error));
+    socket.once("timeout", handleTimeout);
+    socket.once("error", (error) => settle(error));
   });
 }
 
 export function summarizeState(state, now = new Date()) {
   const enabledMonitors = state.monitors.filter((monitor) => monitor.enabled !== false);
   const pausedMonitors = state.monitors.length - enabledMonitors.length;
-  const monitorResults = enabledMonitors
-    .map((monitor) => state.results?.[monitor.id])
-    .filter(Boolean);
+  const monitorStatuses = enabledMonitors.map((monitor) => {
+    const status = state.results?.[monitor.id]?.status;
+    return MONITOR_STATUSES.has(status) ? status : "unknown";
+  });
   const backupResults = state.backups.map((backup) => backupStatus(backup, now));
   const openIncidents = state.incidents.filter((incident) => !incident.resolvedAt);
-  const allStatuses = [
-    ...monitorResults.map((result) => result.status),
-    ...backupResults.map((result) => result.status)
-  ];
+  const allStatuses = [...monitorStatuses, ...backupResults.map((result) => result.status)];
 
   const counts = {
     healthy: allStatuses.filter((status) => status === "healthy").length,
     degraded: allStatuses.filter((status) => status === "degraded").length,
     down: allStatuses.filter((status) => status === "down").length,
-    unknown: Math.max(0, enabledMonitors.length - monitorResults.length)
+    unknown: allStatuses.filter((status) => status === "unknown").length
   };
   const hasConfiguredChecks = state.monitors.length > 0 || state.backups.length > 0;
   const alertWebhookConfigured = Boolean(state.settings.alertWebhookEncrypted);
@@ -462,7 +564,8 @@ export function summarizeState(state, now = new Date()) {
     pausedMonitors,
     hasConfiguredChecks,
     alertWebhookConfigured,
-    openIncidents
+    openIncidents,
+    now
   });
 
   return {
@@ -492,24 +595,25 @@ function calculateReadiness({
   pausedMonitors,
   hasConfiguredChecks,
   alertWebhookConfigured,
-  openIncidents
+  openIncidents,
+  now
 }) {
-  const monitorResults = enabledMonitors
-    .map((monitor) => state.results?.[monitor.id])
-    .filter(Boolean);
-  const uncheckedMonitors = Math.max(0, enabledMonitors.length - monitorResults.length);
+  const monitorStatuses = enabledMonitors.map((monitor) => {
+    const status = state.results?.[monitor.id]?.status;
+    return MONITOR_STATUSES.has(status) ? status : "unknown";
+  });
   const monitorStatus =
     state.monitors.length === 0
       ? "unknown"
       : enabledMonitors.length === 0
         ? "degraded"
-        : monitorResults.some((result) => result.status === "down")
+        : monitorStatuses.includes("down")
           ? "down"
-          : monitorResults.some((result) => result.status === "degraded") || uncheckedMonitors > 0
+          : monitorStatuses.includes("degraded") || monitorStatuses.includes("unknown")
             ? "degraded"
             : "healthy";
-  const backupResults = state.backups.map((backup) => backupStatus(backup));
-  const restoreResults = state.backups.map((backup) => restoreTestStatus(backup));
+  const backupResults = state.backups.map((backup) => backupStatus(backup, now));
+  const restoreResults = state.backups.map((backup) => restoreTestStatus(backup, now));
   const backupReadinessStatus =
     state.backups.length === 0
       ? "unknown"

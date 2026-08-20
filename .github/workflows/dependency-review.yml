@@ -5,7 +5,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read
 
 jobs:
   dependency-review:
@@ -15,8 +14,12 @@ jobs:
         # actions/checkout v6
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
 
-      - name: Review dependency changes
-        # actions/dependency-review-action v5.0.0
-        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294
+      - name: Set up Node.js
+        # actions/setup-node v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
-          fail-on-severity: high
+          node-version: "22"
+          cache: npm
+
+      - name: Audit dependency graph
+        run: npm audit --audit-level=high
