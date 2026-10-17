@@ -1,0 +1,18 @@
+{
+  "name": "HomeOps Sentinel",
+  "approved": "2026-10-15",
+  "viewBox": [
+    0,
+    0,
+    256,
+    256
+  ],
+  "master_path": "M36 114Q36 100 47 91L112 39Q128 26 144 39L209 91Q220 100 220 114V192Q220 220 192 220H78L94 204H148Q176 204 176 180Q176 167 164 160L116 132H150L172 104H104Q82 104 82 124V134Q82 145 94 152L144 182H92L54.8929 219.1071Q36 215 36 192Z",
+  "color_roles": {
+    "white": "#f8fafc",
+    "ink": "#090d16",
+    "cyan": "#38bdf8"
+  },
+  "source": "Approved infrastructure identity, authored home/S swept geometry.",
+  "font": "Inter variable, weight 550, optical size 32; vector lettering outlined."
+}

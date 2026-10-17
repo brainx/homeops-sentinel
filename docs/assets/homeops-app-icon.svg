@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">HomeOps Sentinel App Icon</title>
+  <desc id="desc">A minimal sanctuary symbol for HomeOps Sentinel, representing calm smart-home protection and live operational confidence.</desc>
+  <defs>
+    <radialGradient id="nightGlass" cx="31%" cy="18%" r="94%">
+      <stop offset="0" stop-color="#eafff8"/>
+      <stop offset="0.22" stop-color="#64e0ce"/>
+      <stop offset="0.55" stop-color="#126c62"/>
+      <stop offset="1" stop-color="#07100f"/>
+    </radialGradient>
+    <linearGradient id="mintGem" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#d7fff7"/>
+      <stop offset="0.4" stop-color="#35c7b6"/>
+      <stop offset="1" stop-color="#087066"/>
+    </linearGradient>
+    <filter id="softDepth" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="34" stdDeviation="34" flood-color="#06100f" flood-opacity="0.26"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" rx="232" fill="url(#nightGlass)"/>
+  <g filter="url(#softDepth)">
+    <path d="M512 225 C705 225 820 378 820 562 C820 756 684 832 512 870 C340 832 204 756 204 562 C204 378 319 225 512 225 Z" fill="#f7f8f4"/>
+    <path d="M512 342 C649 342 725 447 725 573 C725 698 632 759 512 790 C392 759 299 698 299 573 C299 447 375 342 512 342 Z" fill="#14201f"/>
+    <circle cx="512" cy="584" r="76" fill="url(#mintGem)"/>
+  </g>
+</svg>

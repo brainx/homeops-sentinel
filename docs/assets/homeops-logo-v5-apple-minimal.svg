@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="title desc">
+  <title id="title">HomeOps Sentinel Apple-Inspired Minimal Logo Concepts V5</title>
+  <desc id="desc">Minimal premium logo concepts for HomeOps Sentinel inspired by Apple design principles: reduction, softness, silhouette, and calm confidence.</desc>
+  <defs>
+    <radialGradient id="field" cx="30%" cy="18%" r="95%">
+      <stop offset="0" stop-color="#f7fff9"/>
+      <stop offset="0.28" stop-color="#bdf2e8"/>
+      <stop offset="0.58" stop-color="#229a8d"/>
+      <stop offset="1" stop-color="#0b1715"/>
+    </radialGradient>
+    <radialGradient id="quiet" cx="24%" cy="16%" r="96%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.42" stop-color="#eef7ef"/>
+      <stop offset="0.78" stop-color="#8bc9bb"/>
+      <stop offset="1" stop-color="#153b35"/>
+    </radialGradient>
+    <linearGradient id="graphite" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#334844"/>
+      <stop offset="0.58" stop-color="#14201f"/>
+      <stop offset="1" stop-color="#050807"/>
+    </linearGradient>
+    <linearGradient id="ceramic" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.62" stop-color="#f0f6f0"/>
+      <stop offset="1" stop-color="#c8dcd2"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#14201f" flood-opacity="0.22"/>
+    </filter>
+    <mask id="homeCutout">
+      <rect width="300" height="300" fill="#fff"/>
+      <path d="M92 168 L150 112 L208 168 V216 H92 Z" fill="#000"/>
+    </mask>
+    <mask id="softCutout">
+      <rect width="300" height="300" fill="#fff"/>
+      <path d="M78 174 C87 111 135 77 190 94 C236 108 244 174 203 214 C161 255 81 233 78 174 Z" fill="#000"/>
+      <path d="M106 170 L150 130 L194 170 V212 H106 Z" fill="#fff"/>
+    </mask>
+    <style>
+      .bg { fill: #f7f8f4; }
+      .title { fill: #14201f; font: 900 48px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #14201f; font: 850 31px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .note { fill: #5f6f6a; font: 600 22px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .tag { fill: #0e766d; font: 900 17px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .08em; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1120" class="bg"/>
+  <text x="78" y="88" class="title">HomeOps Sentinel logo concepts, v5</text>
+  <text x="78" y="128" class="note">Apple-inspired design pass: subtract until only the feeling remains. Comfort, protection, calm intelligence.</text>
+
+  <g transform="translate(82 194)">
+    <rect width="430" height="620" rx="46" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="36" y="60" class="label">01 Home Field</text>
+    <text x="36" y="94" class="note">The strongest app icon</text>
+    <g transform="translate(65 144)" filter="url(#shadow)">
+      <rect width="300" height="300" rx="72" fill="url(#field)"/>
+      <path d="M78 174 C87 111 135 77 190 94 C236 108 244 174 203 214 C161 255 81 233 78 174 Z" fill="#f7f8f4"/>
+      <path d="M111 170 L150 132 L189 170 V207 H111 Z" fill="#14201f"/>
+    </g>
+    <text x="36" y="492" class="tag">WHY</text>
+    <text x="36" y="524" class="note">One soft field, one house, no outline. It feels like a protected home without saying “security.”</text>
+  </g>
+
+  <g transform="translate(562 194)">
+    <rect width="430" height="620" rx="46" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="36" y="60" class="label">02 Shelter</text>
+    <text x="36" y="94" class="note">Most Apple-like reduction</text>
+    <g transform="translate(65 144)" filter="url(#shadow)">
+      <rect width="300" height="300" rx="72" fill="url(#graphite)"/>
+      <path d="M150 66 C208 102 237 160 207 211 C177 263 92 247 80 181 C72 135 104 102 128 82 C138 74 145 69 150 66 Z" fill="url(#ceramic)" mask="url(#homeCutout)"/>
+    </g>
+    <text x="36" y="492" class="tag">WHY</text>
+    <text x="36" y="524" class="note">Pure negative space. Almost nothing to explain. Premium and quiet.</text>
+  </g>
+
+  <g transform="translate(1042 194)">
+    <rect width="430" height="620" rx="46" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="36" y="60" class="label">03 Nest</text>
+    <text x="36" y="94" class="note">Softest consumer option</text>
+    <g transform="translate(65 144)" filter="url(#shadow)">
+      <rect width="300" height="300" rx="72" fill="url(#quiet)"/>
+      <path d="M79 178 C88 112 139 78 193 96 C237 111 242 175 204 213 C161 255 83 235 79 178 Z" fill="#ffffff" opacity=".92"/>
+      <path d="M105 173 L150 132 L195 173 V211 H105 Z" fill="#14201f"/>
+      <circle cx="203" cy="209" r="16" fill="#0e766d"/>
+    </g>
+    <text x="36" y="492" class="tag">WHY</text>
+    <text x="36" y="524" class="note">More friendly, less austere. The tiny teal dot is the “all good” feeling.</text>
+  </g>
+
+  <g transform="translate(1530 194)">
+    <rect width="190" height="620" rx="46" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="34" y="60" class="label">Tiny</text>
+    <g transform="translate(48 130)" filter="url(#shadow)">
+      <rect width="96" height="96" rx="24" fill="url(#field)"/>
+      <path d="M25 56 C28 36 43 25 61 31 C75 36 78 56 65 68 C52 81 27 74 25 56 Z" fill="#f7f8f4"/>
+      <path d="M35 54 L48 42 L61 54 V66 H35 Z" fill="#14201f"/>
+    </g>
+    <g transform="translate(48 260)" filter="url(#shadow)">
+      <rect width="96" height="96" rx="24" fill="url(#graphite)"/>
+      <path d="M29 54 L48 36 L67 54 V68 H29 Z" fill="#f7f8f4"/>
+    </g>
+    <g transform="translate(48 390)" filter="url(#shadow)">
+      <rect width="96" height="96" rx="24" fill="url(#quiet)"/>
+      <path d="M25 56 C28 36 43 25 61 31 C75 36 78 56 65 68 C52 81 27 74 25 56 Z" fill="#ffffff"/>
+      <path d="M34 54 L48 42 L62 54 V67 H34 Z" fill="#14201f"/>
+    </g>
+  </g>
+
+  <g transform="translate(82 904)">
+    <text x="0" y="0" class="label">Recommendation</text>
+    <text x="0" y="40" class="note">Use Home Field. It has the cleanest silhouette, the least linework, and the strongest App Store presence.</text>
+  </g>
+</svg>

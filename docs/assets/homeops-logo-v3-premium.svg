@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1160" viewBox="0 0 1800 1160" role="img" aria-labelledby="title desc">
+  <title id="title">HomeOps Sentinel Premium Logo Concepts V3</title>
+  <desc id="desc">A more ambitious premium logo exploration for HomeOps Sentinel with less literal security imagery and stronger App Store presence.</desc>
+  <defs>
+    <radialGradient id="aurora" cx="28%" cy="16%" r="92%">
+      <stop offset="0" stop-color="#f9fff7"/>
+      <stop offset="0.22" stop-color="#aef5e7"/>
+      <stop offset="0.47" stop-color="#2fb8a5"/>
+      <stop offset="0.74" stop-color="#123631"/>
+      <stop offset="1" stop-color="#07100f"/>
+    </radialGradient>
+    <radialGradient id="dawn" cx="24%" cy="18%" r="96%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.26" stop-color="#ecf8ef"/>
+      <stop offset="0.58" stop-color="#9cd8c7"/>
+      <stop offset="1" stop-color="#14352f"/>
+    </radialGradient>
+    <linearGradient id="graphite" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#314843"/>
+      <stop offset="0.54" stop-color="#14201f"/>
+      <stop offset="1" stop-color="#050908"/>
+    </linearGradient>
+    <linearGradient id="mintGlass" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#dffff7"/>
+      <stop offset="0.42" stop-color="#42cfbc"/>
+      <stop offset="1" stop-color="#087166"/>
+    </linearGradient>
+    <linearGradient id="paperEdge" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e7efe9"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#14201f" flood-opacity="0.24"/>
+    </filter>
+    <filter id="iconShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="20" flood-color="#07100f" flood-opacity="0.34"/>
+    </filter>
+    <style>
+      .bg { fill: #f7f8f4; }
+      .ink { fill: #14201f; }
+      .muted { fill: #5f6f6a; }
+      .title { fill: #14201f; font: 900 48px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #14201f; font: 850 31px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .note { fill: #5f6f6a; font: 600 22px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .tag { fill: #0e766d; font: 900 17px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .08em; }
+      .whiteLine { fill: none; stroke: #ffffff; stroke-width: 18; stroke-linecap: round; stroke-linejoin: round; }
+      .inkLine { fill: none; stroke: #14201f; stroke-width: 16; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1160" class="bg"/>
+  <text x="78" y="88" class="title">HomeOps Sentinel premium logo concepts, v3</text>
+  <text x="78" y="128" class="note">A bigger swing: less literal badge, more memorable app symbol. Comfort + protection + smart-home intelligence.</text>
+
+  <g transform="translate(78 188)">
+    <rect width="390" height="612" rx="44" fill="#ffffff" filter="url(#cardShadow)"/>
+    <text x="34" y="58" class="label">01 Hearth Halo</text>
+    <text x="34" y="92" class="note">Best balance of chic + comfort</text>
+    <g transform="translate(52 134)" filter="url(#iconShadow)">
+      <rect width="286" height="286" rx="68" fill="url(#aurora)"/>
+      <path d="M83 155 C74 104 113 66 160 77 C209 89 230 141 204 183 C174 232 96 219 83 155 Z" fill="rgba(255,255,255,0.14)"/>
+      <path d="M92 153 C111 108 144 93 185 108" fill="none" stroke="rgba(255,255,255,0.74)" stroke-width="22" stroke-linecap="round"/>
+      <path d="M190 112 C217 142 206 192 165 207 C130 219 94 199 86 166" fill="none" stroke="rgba(255,255,255,0.36)" stroke-width="22" stroke-linecap="round"/>
+      <path d="M98 162 L143 124 L188 162" class="whiteLine"/>
+      <path d="M116 159 V195 H170 V159" class="whiteLine"/>
+      <circle cx="202" cy="198" r="25" fill="url(#mintGlass)"/>
+    </g>
+    <text x="34" y="472" class="tag">FEEL</text>
+    <text x="34" y="504" class="note">Cozy home wrapped in a calm protective halo. The most emotionally right.</text>
+  </g>
+
+  <g transform="translate(514 188)">
+    <rect width="390" height="612" rx="44" fill="#ffffff" filter="url(#cardShadow)"/>
+    <text x="34" y="58" class="label">02 Quiet Signal</text>
+    <text x="34" y="92" class="note">Most mainstream / iOS-like</text>
+    <g transform="translate(52 134)" filter="url(#iconShadow)">
+      <rect width="286" height="286" rx="68" fill="url(#dawn)"/>
+      <path d="M68 178 C85 118 133 84 198 92" fill="none" stroke="#14201f" stroke-width="22" stroke-linecap="round"/>
+      <path d="M218 124 C207 180 163 215 99 207" fill="none" stroke="#14201f" stroke-width="22" stroke-linecap="round"/>
+      <path d="M102 161 L143 126 L184 161" class="inkLine"/>
+      <path d="M118 158 V195 H168 V158" class="inkLine"/>
+      <circle cx="204" cy="198" r="24" fill="url(#mintGlass)"/>
+    </g>
+    <text x="34" y="472" class="tag">FEEL</text>
+    <text x="34" y="504" class="note">Clean, bright, approachable. Less dramatic, more consumer-friendly.</text>
+  </g>
+
+  <g transform="translate(950 188)">
+    <rect width="390" height="612" rx="44" fill="#ffffff" filter="url(#cardShadow)"/>
+    <text x="34" y="58" class="label">03 Sentinel Flame</text>
+    <text x="34" y="92" class="note">Most distinctive</text>
+    <g transform="translate(52 134)" filter="url(#iconShadow)">
+      <rect width="286" height="286" rx="68" fill="url(#graphite)"/>
+      <path d="M143 63 C194 103 222 154 192 202 C166 242 100 228 86 181 C75 142 98 115 119 91 C129 80 137 70 143 63 Z" fill="url(#mintGlass)"/>
+      <path d="M108 162 L143 130 L178 162" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M122 160 V191 H164 V160" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M143 131 V191" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="34" y="472" class="tag">FEEL</text>
+    <text x="34" y="504" class="note">A protective hearth flame. More ownable, less obvious, higher brand ceiling.</text>
+  </g>
+
+  <g transform="translate(1386 188)">
+    <rect width="336" height="612" rx="44" fill="#ffffff" filter="url(#cardShadow)"/>
+    <text x="34" y="58" class="label">Tiny Test</text>
+    <text x="34" y="92" class="note">App icon scale</text>
+    <g transform="translate(44 136)" filter="url(#iconShadow)">
+      <rect width="96" height="96" rx="24" fill="url(#aurora)"/>
+      <path d="M28 54 L48 37 L68 54" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M35 53 V67 H61 V53" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="70" cy="68" r="8" fill="#0e766d"/>
+    </g>
+    <g transform="translate(164 136)" filter="url(#iconShadow)">
+      <rect width="96" height="96" rx="24" fill="url(#dawn)"/>
+      <path d="M25 59 C34 41 48 35 68 39" fill="none" stroke="#14201f" stroke-width="7" stroke-linecap="round"/>
+      <path d="M31 54 L48 40 L65 54" fill="none" stroke="#14201f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="68" cy="68" r="8" fill="#0e766d"/>
+    </g>
+    <g transform="translate(44 268)" filter="url(#iconShadow)">
+      <rect width="96" height="96" rx="24" fill="url(#graphite)"/>
+      <path d="M48 21 C69 42 76 60 62 75 C47 91 25 75 32 55 C35 44 42 35 48 21 Z" fill="url(#mintGlass)"/>
+      <path d="M35 56 L48 45 L61 56" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="34" y="436" class="tag">READS FAST</text>
+    <text x="34" y="468" class="note">If it does not survive this size, it is not the app icon.</text>
+  </g>
+
+  <g transform="translate(78 884)">
+    <text x="0" y="0" class="label">My pick</text>
+    <text x="0" y="40" class="note">Hearth Halo if the product should feel premium and comforting. Sentinel Flame if you want a more distinctive brand people might actually remember.</text>
+  </g>
+</svg>

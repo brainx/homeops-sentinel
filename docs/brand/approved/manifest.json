@@ -1,0 +1,723 @@
+{
+  "brand": "HomeOps Sentinel",
+  "version": "1.1",
+  "approval_date": "2026-10-15",
+  "updated_date": "2026-10-16",
+  "files": [
+    {
+      "path": "BRAND.md",
+      "bytes": 6669,
+      "sha256": "27e9cd7736dba338891fb4f20a265623f858ec8c80c3f38805e98a9b589ee370"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 631,
+      "sha256": "1720ffb99cfdb883b6b6d7ad528153697b416294ee54dfb61819a8b9cbd30f98"
+    },
+    {
+      "path": "DESIGN.md",
+      "bytes": 1874,
+      "sha256": "0e9aa063e690cb0885e48b7a2e6a7ac3e014db073392a7e09b9a91a4ad60c2c5"
+    },
+    {
+      "path": "OPEN-DESIGN-REVIEW.md",
+      "bytes": 1432,
+      "sha256": "597122afc299baa7f1a6ce69aa6a325b6cf60fe73e2c017bb6ca9bd196a9836e"
+    },
+    {
+      "path": "PLATFORM-ASSETS.md",
+      "bytes": 2673,
+      "sha256": "f277103f3d6d9714e2d2a27fa8b2ac78988227e7c2e58a80eb9acc8634107a22"
+    },
+    {
+      "path": "VERIFICATION.md",
+      "bytes": 2757,
+      "sha256": "8c43de839bc4dacfa5b713b0c433c51ff136032f6e5499af0f5616eaee24cec1"
+    },
+    {
+      "path": "app-desktop.png",
+      "bytes": 554839,
+      "sha256": "c2242ae004d386e3dcd232c8dd7d2e106ff082e26ec14155e7f32f525167cd8f",
+      "width": 1440,
+      "height": 3247,
+      "mode": "RGB"
+    },
+    {
+      "path": "app-mobile.png",
+      "bytes": 474328,
+      "sha256": "c5daa18c764ab4e28f4f68112073a2421c8c9bedd4365b8a61202b0872d87b97",
+      "width": 390,
+      "height": 6937,
+      "mode": "RGB"
+    },
+    {
+      "path": "console-mobile.png",
+      "bytes": 251069,
+      "sha256": "721bde6f99dc07cade046f18531847df7134baaa1a09769f15b6e896cfec75f5",
+      "width": 390,
+      "height": 3587,
+      "mode": "RGB"
+    },
+    {
+      "path": "fonts/Inter-LICENSE.txt",
+      "bytes": 4380,
+      "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"
+    },
+    {
+      "path": "fonts/InterVariable.ttf",
+      "bytes": 879708,
+      "sha256": "4989b125924991b90d05b2d16e0e388c48f7d5bb8b30539bbf9c755278d0ccaf"
+    },
+    {
+      "path": "fonts/InterVariable.woff2",
+      "bytes": 352240,
+      "sha256": "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3"
+    },
+    {
+      "path": "fonts/SOURCE.md",
+      "bytes": 208,
+      "sha256": "dc0081451d960ef4219b4bbd9231544b60ff588b5cd8792dc7eb6be487e81ea5"
+    },
+    {
+      "path": "geometry.json",
+      "bytes": 619,
+      "sha256": "e4a100979eb53e46a88f5b4d5d3472f55a4a58a69722fe44927f99eef8a00d4b"
+    },
+    {
+      "path": "icons/app-icon-1024.png",
+      "bytes": 215454,
+      "sha256": "5ce85db1a142816d91418e76a013001052d60033ca515d7c5bcb9287b37426c7",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-128.png",
+      "bytes": 7328,
+      "sha256": "5b36ca4927ce6ff3827cb806c7766cfff0e1da2eb545595bcfa3134c8b84a354",
+      "width": 128,
+      "height": 128,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-180.png",
+      "bytes": 14353,
+      "sha256": "e7e47f9c461c052e0a581b5810367b098fee713d90ab2a765173995d330e7737",
+      "width": 180,
+      "height": 180,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-192.png",
+      "bytes": 12725,
+      "sha256": "a8f5d41bf1e439796ef6ecaa109ef177a07e713964792391bf4f10c926e28637",
+      "width": 192,
+      "height": 192,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-256.png",
+      "bytes": 20073,
+      "sha256": "93f1d2b88c46c95651c19631cecaf8de60ac20473241c3343cd3016956793b97",
+      "width": 256,
+      "height": 256,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-32.png",
+      "bytes": 1029,
+      "sha256": "9be6339121d39e26cab8f4de1ed2d2ea0ad7345ba16984248997948601bb95f9",
+      "width": 32,
+      "height": 32,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-384.png",
+      "bytes": 38084,
+      "sha256": "1bc4321f78b039c802b266a21c042d7daadf640cd89d4a7ac7aaee47dec9d264",
+      "width": 384,
+      "height": 384,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-48.png",
+      "bytes": 1617,
+      "sha256": "9554edf8bbde53d5cca940941e586e11b857ed77a7b7faf41dfccc693890d943",
+      "width": 48,
+      "height": 48,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-512.png",
+      "bytes": 62866,
+      "sha256": "0542d19ffc9ac9660b09c9d7c825056b945502fa4872f270b0296de2d2626741",
+      "width": 512,
+      "height": 512,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-64.png",
+      "bytes": 2676,
+      "sha256": "59802cab5350284358465ee67418c7af325591d41d059d3284333ab57b05afa5",
+      "width": 64,
+      "height": 64,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-96.png",
+      "bytes": 4715,
+      "sha256": "548568fc38b8496170209ca49ac6fecdbf10ce07b578d2248198b24d3266d674",
+      "width": 96,
+      "height": 96,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-maskable-512.png",
+      "bytes": 4344,
+      "sha256": "6c6e902d09142fd186353edce2c8b2ba8709c54fe499e300b414f6e535ca7147",
+      "width": 512,
+      "height": 512,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/app-icon-maskable.svg",
+      "bytes": 555,
+      "sha256": "62698ad47e6b5430332f0d6c4ff843eef232dc7a5b85c78742558e3188dbff93"
+    },
+    {
+      "path": "icons/app-icon-preview-1024.png",
+      "bytes": 320146,
+      "sha256": "5d69fb611be23e8a6b54bbf53e203bbf29663d25cddb0ada46fa67a044c2092c",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "path": "icons/app-icon-preview.svg",
+      "bytes": 997,
+      "sha256": "82bbe50938a77ecfe766cb04edf051169e4d6064b8fa2b9a962187594c7ceaf5"
+    },
+    {
+      "path": "icons/app-icon.svg",
+      "bytes": 895,
+      "sha256": "ef3ff6d2b6c9dd42631c44d793123e033395e923ce34de5f010b6da10773abbd"
+    },
+    {
+      "path": "icons/apple-touch-icon.png",
+      "bytes": 14353,
+      "sha256": "e7e47f9c461c052e0a581b5810367b098fee713d90ab2a765173995d330e7737",
+      "width": 180,
+      "height": 180,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/avatar-512.png",
+      "bytes": 62866,
+      "sha256": "0542d19ffc9ac9660b09c9d7c825056b945502fa4872f270b0296de2d2626741",
+      "width": 512,
+      "height": 512,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/favicon-16.png",
+      "bytes": 348,
+      "sha256": "7e401066954958c411806e0f0079c6e7384639bbbcba70c4cc1c2dd7674f4cec",
+      "width": 16,
+      "height": 16,
+      "mode": "RGBA"
+    },
+    {
+      "path": "icons/favicon-32.png",
+      "bytes": 619,
+      "sha256": "fcefbcefaa50dea7acd4ccf6b318226425c54bbd2580633e29f0bd6a7ab64668",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA"
+    },
+    {
+      "path": "icons/favicon-48.png",
+      "bytes": 873,
+      "sha256": "cb867db622c63df9a7c5719aa76448cb298c757fe5eb1f7c47e0b91b1ee29605",
+      "width": 48,
+      "height": 48,
+      "mode": "RGBA"
+    },
+    {
+      "path": "icons/favicon.ico",
+      "bytes": 3208,
+      "sha256": "c4a23f6c77f5e43a3971da9b4f8aebe0bd6d9885a1e36834ff99e247caf7f005"
+    },
+    {
+      "path": "icons/favicon.svg",
+      "bytes": 550,
+      "sha256": "0241adc88dc0f9bbcc98ebd56c26ddf2ba1afe9ea7a3ff4f5bf4d835e71da579"
+    },
+    {
+      "path": "icons/mobile/android-adaptive-background.png",
+      "bytes": 5787,
+      "sha256": "6f01829648d7faac6bfee4b1b5dce83c1b8a94e73855cf09d10d8fd4aac393c4",
+      "width": 1080,
+      "height": 1080,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/mobile/android-adaptive-background.svg",
+      "bytes": 242,
+      "sha256": "7158ee0b1840f2e6125597395fa5fcb880331f21cf12f53dc35c9b947325acfa"
+    },
+    {
+      "path": "icons/mobile/android-adaptive-foreground.png",
+      "bytes": 11348,
+      "sha256": "c37ea365d3af3893a7cabc7f461ae75a64be4737465b8b4adbf1057d33f26b58",
+      "width": 1080,
+      "height": 1080,
+      "mode": "RGBA"
+    },
+    {
+      "path": "icons/mobile/android-adaptive-foreground.svg",
+      "bytes": 522,
+      "sha256": "60c6a0e57111f2bb1682ccc5ace4b0d78b4ba3b01916d0da1c8edee74eeec5ee"
+    },
+    {
+      "path": "icons/mobile/android-monochrome.png",
+      "bytes": 11309,
+      "sha256": "40803595c4beb93800861bd153a71f0584f7051705b5fe411f80736cf90a6191",
+      "width": 1080,
+      "height": 1080,
+      "mode": "RGBA"
+    },
+    {
+      "path": "icons/mobile/android-monochrome.svg",
+      "bytes": 519,
+      "sha256": "a5f31bde40bf4e8b023d9746dd0fff628bdd4da415765c3f15b4785de681bb22"
+    },
+    {
+      "path": "icons/mobile/launch-preview.png",
+      "bytes": 19978,
+      "sha256": "659ccab68ef7485bb5b1dd90e77b4d174be3ff300dd5c155057515951db126c3",
+      "width": 1170,
+      "height": 2532,
+      "mode": "RGB"
+    },
+    {
+      "path": "icons/mobile/launch-preview.svg",
+      "bytes": 10876,
+      "sha256": "43033acc89664b7c9b6f97854ebe1be906d90a8821eb3498414fce3e768654c1"
+    },
+    {
+      "path": "icons/mobile/notification-white.png",
+      "bytes": 956,
+      "sha256": "8bd062cd1785880196d72ac9d02ac1da33a7cfd3474f86558630df76d7f85ffa",
+      "width": 96,
+      "height": 96,
+      "mode": "RGBA"
+    },
+    {
+      "path": "icons/mobile/notification-white.svg",
+      "bytes": 507,
+      "sha256": "59c329c146f2e206ece1332ef81cd41a72e2681e10835d15e6338190341fa613"
+    },
+    {
+      "path": "icons/mobile/splash-foreground.png",
+      "bytes": 4875,
+      "sha256": "fa0d4ad2e3ae1540de9b287e43f735bce56587f4459aaa2ce466676883ae7c5b",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "path": "icons/mobile/splash-foreground.svg",
+      "bytes": 512,
+      "sha256": "fc0755def3a008438a2ff68303b3b12d1f177ca3bb09e3097921b35f59ca7d10"
+    },
+    {
+      "path": "icons/safari-pinned-tab.svg",
+      "bytes": 463,
+      "sha256": "f80b817f1e63542ec9ba5f71e577c6ac611296787bdbba420c07820848fa22c4"
+    },
+    {
+      "path": "icons/ui/advisor.svg",
+      "bytes": 346,
+      "sha256": "b9bcfd6702ece655c75b03f2afe129d8fc7e6f125740227277992c53f04bec29"
+    },
+    {
+      "path": "icons/ui/atlas.svg",
+      "bytes": 373,
+      "sha256": "e5e8ceb28286bd7a462138c536ac3af539e486bb397f1269b45f516edb30e405"
+    },
+    {
+      "path": "icons/ui/auditor.svg",
+      "bytes": 352,
+      "sha256": "e0b77461df274a62dc9d319bcf1ea8e4059b3cc48abaaa9903eb264bc68d3385"
+    },
+    {
+      "path": "icons/ui/console.svg",
+      "bytes": 323,
+      "sha256": "2ccd7cff432ae60df8a4bd15a4ce1be1a98eaf900c87e17ad891f289ce75ffe6"
+    },
+    {
+      "path": "icons/ui/guard.svg",
+      "bytes": 318,
+      "sha256": "cfbb0182416ccb3030ed9fcb7700f78f9ac335c6b196fcdcbfcf616da5a994d2"
+    },
+    {
+      "path": "icons/ui/ledger.svg",
+      "bytes": 293,
+      "sha256": "9b6d6a76ceeea929dece0f8744c9d2a96bc242c842554c5d7f4adc1366d0e12a"
+    },
+    {
+      "path": "icons/ui/proof.svg",
+      "bytes": 306,
+      "sha256": "48f9b87a7a511307a448949084d1b8f9addc0f393d3fdb44f10c6bab14971e83"
+    },
+    {
+      "path": "icons/ui/pulse.svg",
+      "bytes": 280,
+      "sha256": "8078e3044f80a4fc0f1cb17f1cec8edab514281973ea3038f5d8b251c97345e8"
+    },
+    {
+      "path": "icons/ui/signal.svg",
+      "bytes": 289,
+      "sha256": "ef9779fbb4fb8dc6c38e79e48442dd212fb698479bbb3fbd550d68574e569604"
+    },
+    {
+      "path": "icons/ui/vault.svg",
+      "bytes": 333,
+      "sha256": "6dc38d8b9c001998f1fd3fcb858d49a907263da258c5d8640ab622eae1612dfb"
+    },
+    {
+      "path": "index.html",
+      "bytes": 16346,
+      "sha256": "5b03ba5bd7cddc1aa62adcadcca142f1edcb38706895fb515dfaac0ce7fbefde"
+    },
+    {
+      "path": "library-preview.png",
+      "bytes": 373104,
+      "sha256": "523f2df28805c7db4628d995e50f2fb7b52de262e12e8d57cecd2647afd7d1df",
+      "width": 1440,
+      "height": 3275,
+      "mode": "RGB"
+    },
+    {
+      "path": "logos/mark-cyan-1024.png",
+      "bytes": 13010,
+      "sha256": "9d2e367bd86a78e40c3b168ca63c50787ad7a6bb0b6d1c210371e05578a8ed68",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/mark-cyan-256.png",
+      "bytes": 2531,
+      "sha256": "da351a5c5c16490f76af3504c98fb7e086de6309f5b5a591b258c19957066212",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/mark-cyan-512.png",
+      "bytes": 5428,
+      "sha256": "b8de57da36c160469d0cef0ea9cd758e04649102a8cb0b88570d0b11920db54d",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/mark-cyan.svg",
+      "bytes": 460,
+      "sha256": "a47186d9c7603805488efae260dc175e8fcf5f1585dcf173cc65cf4ae7bcab40"
+    },
+    {
+      "path": "logos/mark-ink-1024.png",
+      "bytes": 13544,
+      "sha256": "705483edb8ff079e5d486a85e03246d4b97a721045553f65853c3daa9340f9cb",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/mark-ink-256.png",
+      "bytes": 2672,
+      "sha256": "6a7aef6346fd10681fe5e5ee8a47e7593a16c4698d16eba6e6807843efce8a41",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/mark-ink-512.png",
+      "bytes": 5755,
+      "sha256": "756d83cb409c4369838903740977c2da872a2ede091e7cbd1734f37659b02dbb",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/mark-ink.svg",
+      "bytes": 460,
+      "sha256": "135964a500e5777efe0149f04a302efbe7584906db5df458d11a5b26dae0c805"
+    },
+    {
+      "path": "logos/mark-white-1024.png",
+      "bytes": 13618,
+      "sha256": "5678a3a5c3a6c45258555a18f279c8105c66f9020e2a6f622f3dfe1b15e1dda4",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/mark-white-256.png",
+      "bytes": 2597,
+      "sha256": "ecd6168eb661f524e90cd796a8797b14efa27ee02b77251556ef8d489f0831af",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/mark-white-512.png",
+      "bytes": 5686,
+      "sha256": "91144799f47c3f1b5e1a44ff1224687dcc404a95aff04c1c8641c4bda690028b",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/mark-white.svg",
+      "bytes": 460,
+      "sha256": "9826d14a89d3d35be92259fd086aae8f6046b176ec2cadf7a215b2a3f383b2c9"
+    },
+    {
+      "path": "logos/wordmark-compact-cyan.png",
+      "bytes": 8971,
+      "sha256": "4b2481f60e8f7e924ce014d6a4291661772238f2e3bd9432a7fcf54a293e8ddd",
+      "width": 1000,
+      "height": 320,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/wordmark-compact-cyan.svg",
+      "bytes": 9991,
+      "sha256": "c57c781ab24d8f2dfe5b03a5f7bed52fb3d9e33c47121c4598241060a957a214"
+    },
+    {
+      "path": "logos/wordmark-compact-ink.png",
+      "bytes": 9204,
+      "sha256": "540df2ff6bdbe9742ebac5639f959d8d26328c755b6e47d960335b69a4b6faae",
+      "width": 1000,
+      "height": 320,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/wordmark-compact-ink.svg",
+      "bytes": 9991,
+      "sha256": "39d9c0999a6325d09b6ed3b5100cbe8eb2b7d56b9ac42162db081d2baf3425f0"
+    },
+    {
+      "path": "logos/wordmark-compact-white.png",
+      "bytes": 9033,
+      "sha256": "ad058fa0232f740ead47f4345a1bedefc7c6c9bea16d93566a819c4ad2108583",
+      "width": 1000,
+      "height": 320,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/wordmark-compact-white.svg",
+      "bytes": 9991,
+      "sha256": "8138376ae219a395983395e3318d0255f87b9e6fd298f2265722784516e8f494"
+    },
+    {
+      "path": "logos/wordmark-horizontal-cyan.png",
+      "bytes": 11430,
+      "sha256": "0a609d4278191e802c22f2906b9981bb7cdcee108bda9f9cf75387404b84b512",
+      "width": 1520,
+      "height": 320,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/wordmark-horizontal-cyan.svg",
+      "bytes": 10610,
+      "sha256": "f12a831c42da3d5cdecfe583932998cc8c4a62fe3d69c7249c823ce6203e8c7a"
+    },
+    {
+      "path": "logos/wordmark-horizontal-ink.png",
+      "bytes": 11690,
+      "sha256": "04eb6201f713a18e67e12ce77d4268400ac122a02d64a0181127accba869cb99",
+      "width": 1520,
+      "height": 320,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/wordmark-horizontal-ink.svg",
+      "bytes": 10610,
+      "sha256": "e66c369e824c0758bbf6a1b6dd92e1f306aa62a9b017d5036311240778a2a16d"
+    },
+    {
+      "path": "logos/wordmark-horizontal-white.png",
+      "bytes": 11569,
+      "sha256": "f08857796c02c20b4a413adf5b70445d88de68c1fdf610648a9c5823d95bbd4c",
+      "width": 1520,
+      "height": 320,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/wordmark-horizontal-white.svg",
+      "bytes": 10610,
+      "sha256": "5c80b937fb0779bf3f1e8e0a1f7155ee7ad510035e3979e146f8d325726ffe02"
+    },
+    {
+      "path": "logos/wordmark-stacked-cyan.png",
+      "bytes": 14239,
+      "sha256": "e0485e6db61b8902bcf96fd8a6cf454fc9dc9dc372260b6f57437f3e9a7ce7d0",
+      "width": 1200,
+      "height": 800,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/wordmark-stacked-cyan.svg",
+      "bytes": 10800,
+      "sha256": "89cd11c409338a01a861d39a3bd30ee8cef97eb2cf8439c114574bb761502f38"
+    },
+    {
+      "path": "logos/wordmark-stacked-ink.png",
+      "bytes": 14819,
+      "sha256": "759a9dcd352dcc7a8492d7f8a70d5e7c72641a6ff26a83ca2a4b6611705fd7b9",
+      "width": 1200,
+      "height": 800,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/wordmark-stacked-ink.svg",
+      "bytes": 10800,
+      "sha256": "73b0999c7430b2331f4d14963b593e48847ea729a318940dc542b69d4b481dc8"
+    },
+    {
+      "path": "logos/wordmark-stacked-white.png",
+      "bytes": 14685,
+      "sha256": "2fa35fc4f8d054e4b20a4881f858f2913e9dd4f221da5f6c586ba1815163e290",
+      "width": 1200,
+      "height": 800,
+      "mode": "RGBA"
+    },
+    {
+      "path": "logos/wordmark-stacked-white.svg",
+      "bytes": 10800,
+      "sha256": "07c3d3f05baa25be74809bae6da2a9dbabfe411709b4ec12ad9af98de5d5e47c"
+    },
+    {
+      "path": "master-prompt.md",
+      "bytes": 3175,
+      "sha256": "7a69f17c0aaf151568036acd62dd05de9a8db32e724d54c8990fc3c1982007a0"
+    },
+    {
+      "path": "social/linkedin-banner.png",
+      "bytes": 11194,
+      "sha256": "e2a2d7b39686d9717ce0ccb70c0373dfc1b5c67d3cf887dbb7a36046ffbf0250",
+      "width": 1584,
+      "height": 396,
+      "mode": "RGB"
+    },
+    {
+      "path": "social/linkedin-banner.svg",
+      "bytes": 32190,
+      "sha256": "aff3cfffcd713626eac5f5788a4b19d47cc84b9c2c163737a329ff92e82c8dae"
+    },
+    {
+      "path": "social/open-graph.png",
+      "bytes": 19078,
+      "sha256": "00d4967a612132a8680c42b969c1104efe103f9674612ad7557d5c07be8b901e",
+      "width": 1200,
+      "height": 630,
+      "mode": "RGB"
+    },
+    {
+      "path": "social/open-graph.svg",
+      "bytes": 68921,
+      "sha256": "b15f841a35092f9d33e3dfa1fd1ed5566afccd59da7da5608aa3f1039377605b"
+    },
+    {
+      "path": "social/play-store-feature.png",
+      "bytes": 15305,
+      "sha256": "c7f956f1b8bccc429954ed822cb36af9a88f43a7216d4766271d0bf98e94d7d9",
+      "width": 1024,
+      "height": 500,
+      "mode": "RGB"
+    },
+    {
+      "path": "social/play-store-feature.svg",
+      "bytes": 59068,
+      "sha256": "00af5ec8941f0cad14283c2985c38f15636cee43ea85d160517be62714835931"
+    },
+    {
+      "path": "social/repository-cover.png",
+      "bytes": 19402,
+      "sha256": "208ac8eda25e6c9bdcc9e9fad2fa359234c94c1b9fea1221d259e400d98f7acb",
+      "width": 1280,
+      "height": 640,
+      "mode": "RGB"
+    },
+    {
+      "path": "social/repository-cover.svg",
+      "bytes": 68921,
+      "sha256": "9235c1ce05bb5f86f487dfec0c1c4e2f8d1e7dda35acae9cbbe1ea35a7d6cb97"
+    },
+    {
+      "path": "social/social-square.png",
+      "bytes": 24545,
+      "sha256": "4ee914afa4fcd18b733aac9cb74b24d449bfeb8b5805cab66dd28269b1bccd31",
+      "width": 1080,
+      "height": 1080,
+      "mode": "RGB"
+    },
+    {
+      "path": "social/social-square.svg",
+      "bytes": 59503,
+      "sha256": "65995b0ae0a69d5fd0f822e35c02319c842b03ab903f33de3134c3e45b092ddd"
+    },
+    {
+      "path": "templates/email-signature.html",
+      "bytes": 945,
+      "sha256": "ea501f95adf98a771910efa2a43a99d115387afddc83c9d6c260da36df1590a4"
+    },
+    {
+      "path": "templates/letterhead.svg",
+      "bytes": 10813,
+      "sha256": "3e951607dd901ff11469e9685951ce35b223fa5124442ae9a52dbf32e1442f19"
+    },
+    {
+      "path": "templates/report-cover.html",
+      "bytes": 1980,
+      "sha256": "0b86662b914154bea99ab993fc5cf6aaaacd014df4a78ae76182594e79c13fcb"
+    },
+    {
+      "path": "tokens.css",
+      "bytes": 594,
+      "sha256": "e36d232a922b988e704dcd0bf4b6078aee7afd2df69d554a8500006a90612c72"
+    },
+    {
+      "path": "tools/build_assets.py",
+      "bytes": 7415,
+      "sha256": "f2051192bc4e29b35c8a6c5bf06d0ba7670b79739a98e829e3e7dac383a11cdb"
+    },
+    {
+      "path": "tools/export_assets.cjs",
+      "bytes": 2736,
+      "sha256": "959083983c4dd9d172eee0feceb93f0374f59b6c653c8537f9896713b83ccc7a"
+    },
+    {
+      "path": "tools/package_assets.py",
+      "bytes": 1317,
+      "sha256": "95399fa33f1fec2939f1cf157d81cab10929fbfb025fb6bc648da25155dadd16"
+    },
+    {
+      "path": "tools/requirements.txt",
+      "bytes": 30,
+      "sha256": "edab72c4d13f033d5f13f6dd19ea505ac4c88f59e74051181ada56aea488abca"
+    },
+    {
+      "path": "tools/validate_assets.py",
+      "bytes": 1979,
+      "sha256": "0395662e2afc75a8354752c3d4fb4de4376c6f5659f1321896ee719b9e7563c0"
+    }
+  ],
+  "inventory_scope": "All kit files except this manifest and its enclosing ZIP.",
+  "font_source": "rsms/inter at 353b61b9f4430d5f420d56605a6e7993e0941470; SIL OFL 1.1 included."
+}

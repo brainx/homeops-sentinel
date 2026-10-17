@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">HomeOps Sentinel Logo and Iconography Concepts</title>
+  <desc id="desc">Apple-inspired but distinct app logo options and line icon system for HomeOps Sentinel.</desc>
+  <defs>
+    <style>
+      .ink { fill: #14201f; }
+      .paper { fill: #f7f8f4; }
+      .teal { fill: #0e766d; }
+      .mist { fill: #e8efe9; }
+      .line { fill: none; stroke: #14201f; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+      .thin { fill: none; stroke: #14201f; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+      .accent { fill: none; stroke: #0e766d; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+      .label { fill: #5f6f6a; font: 600 24px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { fill: #14201f; font: 800 34px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="760" fill="#f7f8f4"/>
+  <text x="64" y="72" class="title">HomeOps Sentinel logo and iconography</text>
+  <text x="64" y="112" class="label">Minimal, rounded, premium, app-icon ready, and deliberately distinct from Apple-owned marks.</text>
+
+  <g transform="translate(64 168)">
+    <text x="0" y="-28" class="label">Recommended app icon: Sentinel Home Aperture</text>
+    <rect width="220" height="220" rx="48" class="ink"/>
+    <path d="M62 108 L110 66 L158 108" class="line" stroke="#f7f8f4"/>
+    <path d="M77 104 V158 H143 V104" class="line" stroke="#f7f8f4"/>
+    <path d="M110 103 V157" class="line" stroke="#f7f8f4"/>
+    <circle cx="155" cy="151" r="24" class="teal"/>
+    <path d="M143 151 L153 160 L169 141" class="thin" stroke="#f7f8f4"/>
+  </g>
+
+  <g transform="translate(334 168)">
+    <text x="0" y="-28" class="label">Alternate: H monogram with status notch</text>
+    <rect width="220" height="220" rx="48" class="ink"/>
+    <path d="M76 64 V158 M144 64 V158 M76 111 H144" class="line" stroke="#f7f8f4"/>
+    <path d="M88 64 L110 44 L132 64" class="line" stroke="#f7f8f4"/>
+    <circle cx="151" cy="151" r="20" class="teal"/>
+  </g>
+
+  <g transform="translate(604 168)">
+    <text x="0" y="-28" class="label">Alternate: shield-map hybrid</text>
+    <rect width="220" height="220" rx="48" class="ink"/>
+    <path d="M110 51 L159 69 V111 C159 144 139 166 110 178 C81 166 61 144 61 111 V69 Z" class="line" stroke="#f7f8f4"/>
+    <path d="M82 112 H138 M110 83 V144" class="thin" stroke="#f7f8f4"/>
+    <circle cx="110" cy="112" r="15" class="teal"/>
+  </g>
+
+  <g transform="translate(64 470)">
+    <text x="0" y="-32" class="label">Icon system: 28px grid, 2px UI stroke equivalent, rounded terminals</text>
+
+    <g transform="translate(0 0)">
+      <circle cx="48" cy="48" r="44" class="mist"/>
+      <path d="M25 48 L48 28 L71 48 M32 46 V70 H64 V46" class="thin"/>
+      <text x="0" y="126" class="label">Home</text>
+    </g>
+
+    <g transform="translate(150 0)">
+      <circle cx="48" cy="48" r="44" class="mist"/>
+      <path d="M48 18 L73 28 V51 C73 67 63 79 48 86 C33 79 23 67 23 51 V28 Z" class="thin"/>
+      <path d="M36 52 L45 61 L62 41" class="accent"/>
+      <text x="-4" y="126" class="label">Guard</text>
+    </g>
+
+    <g transform="translate(300 0)">
+      <circle cx="48" cy="48" r="44" class="mist"/>
+      <path d="M24 30 H72 V66 H24 Z M34 78 H62" class="thin"/>
+      <path d="M34 43 H62 M34 55 H52" class="thin"/>
+      <text x="-2" y="126" class="label">Report</text>
+    </g>
+
+    <g transform="translate(450 0)">
+      <circle cx="48" cy="48" r="44" class="mist"/>
+      <circle cx="28" cy="35" r="8" class="teal"/>
+      <circle cx="67" cy="30" r="8" class="ink"/>
+      <circle cx="57" cy="69" r="8" class="ink"/>
+      <path d="M35 36 L59 31 M33 40 L52 64" class="thin"/>
+      <text x="-22" y="126" class="label">Authority</text>
+    </g>
+
+    <g transform="translate(600 0)">
+      <circle cx="48" cy="48" r="44" class="mist"/>
+      <path d="M24 70 C24 43 35 25 48 25 C61 25 72 43 72 70" class="thin"/>
+      <path d="M35 70 C35 52 40 43 48 43 C56 43 61 52 61 70" class="accent"/>
+      <text x="-12" y="126" class="label">Signal</text>
+    </g>
+
+    <g transform="translate(750 0)">
+      <circle cx="48" cy="48" r="44" class="mist"/>
+      <path d="M26 30 H70 V72 H26 Z M34 39 H62 M34 50 H62 M34 61 H50" class="thin"/>
+      <path d="M65 66 L78 79" class="accent"/>
+      <text x="-2" y="126" class="label">Audit</text>
+    </g>
+
+    <g transform="translate(900 0)">
+      <circle cx="48" cy="48" r="44" class="mist"/>
+      <path d="M27 65 V38 L48 25 L69 38 V65 Z" class="thin"/>
+      <path d="M38 65 V52 H58 V65" class="thin"/>
+      <path d="M74 28 C82 36 82 54 74 62" class="accent"/>
+      <text x="-10" y="126" class="label">Drift</text>
+    </g>
+  </g>
+</svg>

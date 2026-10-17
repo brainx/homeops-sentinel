@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040" role="img" aria-labelledby="title desc">
+  <title id="title">HomeOps Sentinel Chic Logo Concepts V2</title>
+  <desc id="desc">A second set of more stylish, mainstream, App Store-friendly logo concepts for HomeOps Sentinel.</desc>
+  <defs>
+    <linearGradient id="auraBg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#eefaf5"/>
+      <stop offset="0.44" stop-color="#6fd6c7"/>
+      <stop offset="1" stop-color="#10231f"/>
+    </linearGradient>
+    <linearGradient id="deepBg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#314743"/>
+      <stop offset="0.52" stop-color="#14201f"/>
+      <stop offset="1" stop-color="#080f0e"/>
+    </linearGradient>
+    <linearGradient id="softBg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fbfff8"/>
+      <stop offset="0.55" stop-color="#e7f2ea"/>
+      <stop offset="1" stop-color="#b8d4c9"/>
+    </linearGradient>
+    <linearGradient id="glassTeal" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#c8fff4"/>
+      <stop offset="0.38" stop-color="#23b5a4"/>
+      <stop offset="1" stop-color="#087066"/>
+    </linearGradient>
+    <linearGradient id="warmLight" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f2f7ef"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#14201f" flood-opacity="0.24"/>
+    </filter>
+    <filter id="miniShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#14201f" flood-opacity="0.24"/>
+    </filter>
+    <style>
+      .bg { fill: #f7f8f4; }
+      .ink { fill: #14201f; }
+      .muted { fill: #5f6f6a; }
+      .paper { fill: #f7f8f4; }
+      .title { fill: #14201f; font: 850 44px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #14201f; font: 850 30px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .note { fill: #5f6f6a; font: 600 22px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .tag { fill: #0e766d; font: 850 18px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .05em; }
+      .whiteStroke { fill: none; stroke: #ffffff; stroke-width: 18; stroke-linecap: round; stroke-linejoin: round; }
+      .inkStroke { fill: none; stroke: #14201f; stroke-width: 16; stroke-linecap: round; stroke-linejoin: round; }
+      .tealStroke { fill: none; stroke: #0e766d; stroke-width: 16; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1040" class="bg"/>
+  <text x="74" y="88" class="title">HomeOps Sentinel logo concepts, v2</text>
+  <text x="74" y="126" class="note">Less security-badge. More chic smart-home app: soft geometry, iconic silhouette, cozy protection, premium gradients.</text>
+
+  <g transform="translate(78 188)">
+    <rect width="330" height="500" rx="40" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="30" y="56" class="label">Aura Home</text>
+    <text x="30" y="90" class="note">Best App Store route</text>
+    <g transform="translate(45 128)" filter="url(#shadow)">
+      <rect width="240" height="240" rx="58" fill="url(#auraBg)"/>
+      <path d="M61 132 C76 79 119 53 174 71 C220 87 221 151 185 181 C148 213 91 199 68 158" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="22" stroke-linecap="round"/>
+      <path d="M73 133 L120 92 L167 133" class="whiteStroke"/>
+      <path d="M90 130 V174 H150 V130" class="whiteStroke"/>
+      <circle cx="178" cy="176" r="25" fill="url(#glassTeal)"/>
+      <circle cx="178" cy="176" r="10" fill="#ffffff"/>
+    </g>
+    <text x="30" y="416" class="tag">WHY IT WORKS</text>
+    <text x="30" y="448" class="note">Soft home + calm aura. Security is felt, not shouted.</text>
+  </g>
+
+  <g transform="translate(454 188)">
+    <rect width="330" height="500" rx="40" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="30" y="56" class="label">Nest Signal</text>
+    <text x="30" y="90" class="note">Warmest and friendliest</text>
+    <g transform="translate(45 128)" filter="url(#shadow)">
+      <rect width="240" height="240" rx="58" fill="url(#softBg)"/>
+      <path d="M60 150 C58 89 103 55 152 66 C198 76 217 129 190 169 C159 215 82 206 60 150 Z" fill="#ffffff"/>
+      <path d="M80 137 L120 102 L160 137" class="inkStroke"/>
+      <path d="M95 136 V171 H145 V136" class="inkStroke"/>
+      <path d="M53 153 C73 196 145 215 190 166" fill="none" stroke="#0e766d" stroke-width="16" stroke-linecap="round"/>
+      <circle cx="184" cy="162" r="14" fill="#0e766d"/>
+    </g>
+    <text x="30" y="416" class="tag">WHY IT WORKS</text>
+    <text x="30" y="448" class="note">Comfort-forward. Looks more wellness/home than cyber.</text>
+  </g>
+
+  <g transform="translate(830 188)">
+    <rect width="330" height="500" rx="40" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="30" y="56" class="label">Sentinel Halo</text>
+    <text x="30" y="90" class="note">Most premium / pro</text>
+    <g transform="translate(45 128)" filter="url(#shadow)">
+      <rect width="240" height="240" rx="58" fill="url(#deepBg)"/>
+      <circle cx="120" cy="120" r="77" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="24"/>
+      <path d="M79 128 L120 92 L161 128" class="whiteStroke"/>
+      <path d="M94 125 V172 H146 V125" class="whiteStroke"/>
+      <path d="M120 95 V172" class="whiteStroke"/>
+      <path d="M178 76 C202 104 202 151 177 178" fill="none" stroke="#6fd6c7" stroke-width="17" stroke-linecap="round"/>
+    </g>
+    <text x="30" y="416" class="tag">WHY IT WORKS</text>
+    <text x="30" y="448" class="note">The most polished SaaS/product mark. Strong at tiny sizes.</text>
+  </g>
+
+  <g transform="translate(1206 188)">
+    <rect width="330" height="500" rx="40" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="30" y="56" class="label">Hearth H</text>
+    <text x="30" y="90" class="note">Most ownable monogram</text>
+    <g transform="translate(45 128)" filter="url(#shadow)">
+      <rect width="240" height="240" rx="58" fill="url(#deepBg)"/>
+      <path d="M82 71 V172 M158 71 V172 M82 122 H158" class="whiteStroke"/>
+      <path d="M95 75 L120 54 L145 75" class="whiteStroke"/>
+      <path d="M120 122 V172" class="whiteStroke"/>
+      <circle cx="178" cy="174" r="24" fill="url(#glassTeal)"/>
+      <path d="M167 174 C172 166 184 166 189 174 C185 185 171 185 167 174 Z" fill="#ffffff"/>
+    </g>
+    <text x="30" y="416" class="tag">WHY IT WORKS</text>
+    <text x="30" y="448" class="note">Brandable and crisp. Better for company identity than App Store lead.</text>
+  </g>
+
+  <g transform="translate(94 772)">
+    <text x="0" y="0" class="label">Recommendation</text>
+    <text x="0" y="38" class="note">Use Aura Home if you want modern App Store warmth. Use Sentinel Halo if you want premium SaaS confidence.</text>
+  </g>
+
+  <g transform="translate(94 858)">
+    <text x="0" y="0" class="tag">TINY SIZE TEST</text>
+    <g transform="translate(0 28)" filter="url(#miniShadow)">
+      <rect width="72" height="72" rx="18" fill="url(#auraBg)"/>
+      <path d="M22 40 L36 28 L50 40" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M27 39 V52 H45 V39" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="54" cy="53" r="7" fill="#0e766d"/>
+    </g>
+    <g transform="translate(92 28)" filter="url(#miniShadow)">
+      <rect width="72" height="72" rx="18" fill="url(#deepBg)"/>
+      <path d="M24 38 L36 27 L48 38" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M28 37 V52 H44 V37 M36 28 V52" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M54 24 C62 34 62 48 54 57" fill="none" stroke="#6fd6c7" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <text x="190" y="75" class="note">Both survive small App Store, notification, and favicon contexts.</text>
+  </g>
+</svg>

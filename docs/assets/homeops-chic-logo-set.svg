@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">HomeOps Sentinel Chic Logo Concepts</title>
+  <desc id="desc">Three polished, app-store-ready logo directions for HomeOps Sentinel, designed to communicate security, comfort, and premium smart-home reliability.</desc>
+  <defs>
+    <linearGradient id="inkGlow" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#203632"/>
+      <stop offset="0.58" stop-color="#14201f"/>
+      <stop offset="1" stop-color="#0b1211"/>
+    </linearGradient>
+    <linearGradient id="tealGlow" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#8be2d3"/>
+      <stop offset="0.55" stop-color="#0e766d"/>
+      <stop offset="1" stop-color="#0a4d48"/>
+    </linearGradient>
+    <linearGradient id="warmGlow" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff8e7"/>
+      <stop offset="1" stop-color="#e8efe9"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="24" flood-color="#14201f" flood-opacity="0.22"/>
+    </filter>
+    <filter id="innerSoft">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.4" flood-color="#ffffff" flood-opacity="0.38"/>
+    </filter>
+    <style>
+      .bg { fill: #f7f8f4; }
+      .ink { fill: #14201f; }
+      .muted { fill: #5f6f6a; }
+      .paper { fill: #f7f8f4; }
+      .teal { fill: #0e766d; }
+      .title { fill: #14201f; font: 850 42px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #14201f; font: 800 28px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .note { fill: #5f6f6a; font: 600 22px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .tiny { fill: #5f6f6a; font: 700 18px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .02em; }
+      .strokePaper { fill: none; stroke: #f7f8f4; stroke-width: 18; stroke-linecap: round; stroke-linejoin: round; }
+      .strokeInk { fill: none; stroke: #14201f; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+      .strokeTeal { fill: none; stroke: #0e766d; stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="980" class="bg"/>
+  <text x="72" y="88" class="title">HomeOps Sentinel chic logo set</text>
+  <text x="72" y="126" class="note">Mainstream App Store appeal: soft security, comfortable home signal, premium dark tile, one memorable teal cue.</text>
+
+  <g transform="translate(86 190)">
+    <rect x="0" y="0" width="410" height="560" rx="38" fill="#ffffff" filter="url(#softShadow)"/>
+    <text x="34" y="60" class="label">01 Secure Nest</text>
+    <text x="34" y="94" class="note">Best overall: warm + safe</text>
+    <g transform="translate(70 138)" filter="url(#softShadow)">
+      <rect width="270" height="270" rx="62" fill="url(#inkGlow)"/>
+      <path d="M72 132 C72 89 100 64 135 49 C170 64 198 89 198 132 C198 177 172 205 135 220 C98 205 72 177 72 132 Z" fill="rgba(247,248,244,0.08)" stroke="#f7f8f4" stroke-width="14" stroke-linejoin="round"/>
+      <path d="M96 128 L135 92 L174 128" class="strokePaper"/>
+      <path d="M110 124 V171 H160 V124" class="strokePaper"/>
+      <path d="M135 124 V171" class="strokePaper"/>
+      <circle cx="185" cy="181" r="31" fill="url(#tealGlow)"/>
+      <path d="M170 181 L181 192 L201 169" fill="none" stroke="#f7f8f4" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="34" y="456" class="tiny">SIGNAL</text>
+    <text x="34" y="486" class="note">House + shield + check. Reads instantly at tiny sizes and feels calm, not tactical.</text>
+  </g>
+
+  <g transform="translate(594 190)">
+    <rect x="0" y="0" width="410" height="560" rx="38" fill="#ffffff" filter="url(#softShadow)"/>
+    <text x="34" y="60" class="label">02 Comfort Aperture</text>
+    <text x="34" y="94" class="note">Most chic: soft, modern, premium</text>
+    <g transform="translate(70 138)" filter="url(#softShadow)">
+      <rect width="270" height="270" rx="62" fill="url(#warmGlow)"/>
+      <circle cx="135" cy="135" r="96" fill="#ffffff"/>
+      <path d="M68 145 C83 92 121 68 177 74" fill="none" stroke="#14201f" stroke-width="20" stroke-linecap="round"/>
+      <path d="M202 124 C190 177 151 204 95 196" fill="none" stroke="#14201f" stroke-width="20" stroke-linecap="round"/>
+      <path d="M96 139 L135 104 L174 139" fill="none" stroke="#14201f" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M111 136 V174 H159 V136" fill="none" stroke="#14201f" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="189" cy="188" r="28" fill="url(#tealGlow)"/>
+      <path d="M177 188 L187 197 L204 177" fill="none" stroke="#f7f8f4" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="34" y="456" class="tiny">SIGNAL</text>
+    <text x="34" y="486" class="note">Gentler and more lifestyle-friendly. Great if the product should feel comforting first.</text>
+  </g>
+
+  <g transform="translate(1102 190)">
+    <rect x="0" y="0" width="410" height="560" rx="38" fill="#ffffff" filter="url(#softShadow)"/>
+    <text x="34" y="60" class="label">03 Sentinel Monogram</text>
+    <text x="34" y="94" class="note">Most SaaS: crisp, ownable, pro</text>
+    <g transform="translate(70 138)" filter="url(#softShadow)">
+      <rect width="270" height="270" rx="62" fill="url(#inkGlow)"/>
+      <path d="M83 83 V190 M187 83 V190 M83 137 H187" class="strokePaper"/>
+      <path d="M101 83 L135 56 L169 83" class="strokePaper"/>
+      <path d="M135 137 V190" class="strokePaper"/>
+      <circle cx="189" cy="188" r="30" fill="url(#tealGlow)"/>
+      <path d="M176 188 L187 198 L207 176" fill="none" stroke="#f7f8f4" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="34" y="456" class="tiny">SIGNAL</text>
+    <text x="34" y="486" class="note">A stronger brand asset for SaaS, dashboards, and enterprise-style consultant workflows.</text>
+  </g>
+
+  <g transform="translate(92 820)">
+    <text x="0" y="0" class="label">Recommendation</text>
+    <text x="0" y="40" class="note">Lead with 01 Secure Nest for App Store trust. Keep 03 Sentinel Monogram as the SaaS/product-header mark.</text>
+  </g>
+</svg>

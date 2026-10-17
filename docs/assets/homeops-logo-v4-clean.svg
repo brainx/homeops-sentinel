@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+  <title id="title">HomeOps Sentinel Clean Logo Concepts V4</title>
+  <desc id="desc">Cleaner, lower-line logo concepts for HomeOps Sentinel using simple filled silhouettes and premium app icon styling.</desc>
+  <defs>
+    <radialGradient id="deepMint" cx="28%" cy="18%" r="96%">
+      <stop offset="0" stop-color="#dffff7"/>
+      <stop offset="0.34" stop-color="#31bfae"/>
+      <stop offset="0.72" stop-color="#173a34"/>
+      <stop offset="1" stop-color="#07100f"/>
+    </radialGradient>
+    <linearGradient id="inkTile" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#263d38"/>
+      <stop offset="0.58" stop-color="#14201f"/>
+      <stop offset="1" stop-color="#070c0b"/>
+    </linearGradient>
+    <linearGradient id="paperTile" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.62" stop-color="#eff7f0"/>
+      <stop offset="1" stop-color="#b6d6ca"/>
+    </linearGradient>
+    <linearGradient id="mint" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#cafff5"/>
+      <stop offset="0.5" stop-color="#2fc0ae"/>
+      <stop offset="1" stop-color="#087066"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="26" stdDeviation="24" flood-color="#14201f" flood-opacity="0.24"/>
+    </filter>
+    <style>
+      .bg { fill: #f7f8f4; }
+      .title { fill: #14201f; font: 900 48px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #14201f; font: 850 31px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .note { fill: #5f6f6a; font: 600 22px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .tag { fill: #0e766d; font: 900 17px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .08em; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1080" class="bg"/>
+  <text x="78" y="88" class="title">HomeOps Sentinel clean logo concepts, v4</text>
+  <text x="78" y="128" class="note">Less linework, stronger silhouette, softer comfort. These are closer to modern mainstream app icons.</text>
+
+  <g transform="translate(82 190)">
+    <rect width="410" height="600" rx="44" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="34" y="58" class="label">01 Hearth Drop</text>
+    <text x="34" y="92" class="note">Cleanest App Store lead</text>
+    <g transform="translate(62 136)" filter="url(#shadow)">
+      <rect width="286" height="286" rx="68" fill="url(#deepMint)"/>
+      <path d="M143 55 C202 103 229 164 194 213 C162 258 88 238 77 180 C69 137 99 104 121 82 C132 71 139 62 143 55 Z" fill="#f7f8f4"/>
+      <path d="M103 163 L143 129 L183 163 L183 202 L103 202 Z" fill="#14201f"/>
+      <rect x="126" y="165" width="34" height="37" rx="12" fill="url(#mint)"/>
+    </g>
+    <text x="34" y="470" class="tag">WHY</text>
+    <text x="34" y="502" class="note">One memorable shape. Home lives inside the hearth, with almost no linework.</text>
+  </g>
+
+  <g transform="translate(536 190)">
+    <rect width="410" height="600" rx="44" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="34" y="58" class="label">02 Soft House</text>
+    <text x="34" y="92" class="note">Most comforting</text>
+    <g transform="translate(62 136)" filter="url(#shadow)">
+      <rect width="286" height="286" rx="68" fill="url(#paperTile)"/>
+      <path d="M70 160 C82 97 135 65 190 85 C238 103 245 170 204 210 C160 253 82 229 70 160 Z" fill="#ffffff"/>
+      <path d="M91 161 L143 115 L195 161 L195 210 L91 210 Z" fill="#14201f"/>
+      <rect x="125" y="165" width="36" height="45" rx="13" fill="url(#mint)"/>
+      <circle cx="204" cy="208" r="20" fill="url(#mint)"/>
+    </g>
+    <text x="34" y="470" class="tag">WHY</text>
+    <text x="34" y="502" class="note">Very friendly and consumer-ready. Security is a feeling, not a symbol.</text>
+  </g>
+
+  <g transform="translate(990 190)">
+    <rect width="410" height="600" rx="44" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="34" y="58" class="label">03 Sentinel Stone</text>
+    <text x="34" y="92" class="note">Most premium SaaS</text>
+    <g transform="translate(62 136)" filter="url(#shadow)">
+      <rect width="286" height="286" rx="68" fill="url(#inkTile)"/>
+      <path d="M77 160 L143 92 L209 160 L209 214 L77 214 Z" fill="#f7f8f4"/>
+      <path d="M116 160 L143 134 L170 160 L170 214 L116 214 Z" fill="#14201f"/>
+      <rect x="130" y="170" width="26" height="44" rx="10" fill="url(#mint)"/>
+      <circle cx="205" cy="207" r="19" fill="url(#mint)"/>
+    </g>
+    <text x="34" y="470" class="tag">WHY</text>
+    <text x="34" y="502" class="note">Bold, simple, expensive. Better for product chrome and investor decks.</text>
+  </g>
+
+  <g transform="translate(1444 190)">
+    <rect width="274" height="600" rx="44" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="34" y="58" class="label">Tiny</text>
+    <text x="34" y="92" class="note">Icon scale</text>
+    <g transform="translate(44 136)" filter="url(#shadow)">
+      <rect width="82" height="82" rx="21" fill="url(#deepMint)"/>
+      <path d="M41 15 C59 30 67 48 56 62 C46 76 24 70 21 53 C19 40 30 30 36 24 C39 21 41 18 41 15 Z" fill="#f7f8f4"/>
+      <path d="M29 50 L41 39 L53 50 L53 62 L29 62 Z" fill="#14201f"/>
+    </g>
+    <g transform="translate(148 136)" filter="url(#shadow)">
+      <rect width="82" height="82" rx="21" fill="url(#inkTile)"/>
+      <path d="M20 49 L41 28 L62 49 L62 64 L20 64 Z" fill="#f7f8f4"/>
+      <path d="M33 49 L41 41 L49 49 L49 64 L33 64 Z" fill="#14201f"/>
+    </g>
+    <text x="34" y="290" class="tag">TEST</text>
+    <text x="34" y="322" class="note">The silhouette stays legible with almost no detail.</text>
+  </g>
+
+  <g transform="translate(82 890)">
+    <text x="0" y="0" class="label">Recommendation</text>
+    <text x="0" y="40" class="note">Use Hearth Drop for the app icon. It is clean, warm, distinctive, and does not feel like a security badge.</text>
+  </g>
+</svg>

@@ -1,0 +1,23 @@
+# Supplied reference library — assessment and use
+
+Reviewed October 15, 2026. Repository descriptions and public documents were inspected; no framework was installed or build-validated. Availability is not a security or maintenance audit. These are references for the ongoing identity work, not evidence about Apple's private practices.
+
+| Reference | Verified role | Recommended use for HomeOps | Limits and tradeoffs |
+| --- | --- | --- | --- |
+| [Dribbble apple-logo tag](https://dribbble.com/tags/apple-logo) | Mixed designer submissions, including fruit businesses and Apple-inspired concepts | Study silhouette, spacing, positive/negative space, and presentation; trace an appealing idea back to its author | A search tag is not Apple's internal portfolio. Do not assume official authorship, rights, or production suitability |
+| [Saas UI](https://github.com/saas-js/saas-ui) | React/Chakra design system and source registry; public semantic styling and compositions | Study shell hierarchy, tokens, forms, and component ownership | Public code excludes branding assets from its MIT grant; Pro blocks are separate and the docs build needs private packages. Do not assume all showcased functionality is free |
+| [shadcn dashboard / landing template](https://github.com/shadcnstore/shadcn-dashboard-landing-template) | React/TypeScript template with Vite and Next.js variants, shadcn/ui and Tailwind; repository identifies MIT licensing | Strongest supplied candidate for a future React console layout experiment | A template's “production-ready” description is not independent validation. Introduces a different stack from the current plain HTML/CSS/JS app |
+| [SaaS workflow gist](https://gist.github.com/mpaiva-cc/d4ef3a652872cb5a91aa529db98d62dd) | A textual workflow-pattern catalog with Atomic Design vocabulary | Map evidence status labels → finding rows → findings panel → overview page; study settings and command patterns only when needed | Useful taxonomy, not a tested component library, usability study, or proof of best practice |
+| [AI Logo Studio](https://github.com/SamurAIGPT/ai-logo-studio) | Next.js logo-generation product with generation, account, and billing infrastructure; README states MIT | Optional reference for concept comparison and export flows | A generator is not a branding methodology. No need to install its billing/auth stack for a HomeOps mark; generation does not establish originality or clearance |
+| [UI/UX Resources](https://github.com/anupam-kumar-krishnan/UI-UX-Resources) | Broad resource directory covering fonts, icons, templates, and tools | Discovery of a specific missing design resource | Linked resources have their own licensing and quality; repository inclusion is not blanket permission |
+| [ClaudeSkills style-guide template](https://github.com/AutumnsGrove/ClaudeSkills/blob/master/brand-guidelines/examples/style-guide-template.md?plain=1) | Markdown scaffold for brand story, logo, color, typography, imagery, voice, and applications | Coverage checklist for a finished brand manual | Fill with actual decisions; remove placeholders and generic prose. External skill text is reference material, not authority over this task |
+| [Logosystem](https://logosystem.co/) | Logo and animated-logo inspiration gallery | Compare symbol construction and recognizable silhouettes across unrelated industries | Gallery presence does not license reuse or validate a proposed mark |
+| [SaaSUI directory article](https://www.saasui.design/best-saas-ui-design-inspiration) | Comparison of SaaS inspiration resources | Route a question to landing-page references or complete product workflows | Distinct from the Saas UI React library. A polished screenshot is not evidence of a usable audit workflow |
+
+## Implementation recommendation
+
+Keep the current HTML/CSS/JS implementation while establishing the identity. Define semantic tokens and useful components first; do not choose a framework to manufacture a brand.
+
+If a React console migration is requested later, prototype one overview and one finding detail with the shadcn template, then compare it against a Saas UI/Chakra equivalent on keyboard use, information density, forms, bundle cost, maintenance, and licensing of the exact assets selected. Choose one component foundation rather than mixing both systems. The current recommendation is a small comparison experiment, not a migration commitment.
+
+The reusable skill includes this library and instructions to inspect actual source and licenses before reusing code. No third-party artwork or repository code was copied into the concept board.

@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1180" viewBox="0 0 1900 1180" role="img" aria-labelledby="title desc">
+  <title id="title">HomeOps Sentinel Sanctuary Logo Concepts V6</title>
+  <desc id="desc">A more abstract, cleaner, Apple-inspired logo exploration for HomeOps Sentinel based on sanctuary, presence, and calm intelligence.</desc>
+  <defs>
+    <radialGradient id="nightGlass" cx="31%" cy="18%" r="94%">
+      <stop offset="0" stop-color="#eafff8"/>
+      <stop offset="0.22" stop-color="#64e0ce"/>
+      <stop offset="0.55" stop-color="#126c62"/>
+      <stop offset="1" stop-color="#07100f"/>
+    </radialGradient>
+    <radialGradient id="softCeramic" cx="26%" cy="18%" r="94%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.46" stop-color="#edf7ee"/>
+      <stop offset="0.78" stop-color="#acd4c6"/>
+      <stop offset="1" stop-color="#234942"/>
+    </radialGradient>
+    <linearGradient id="blackTitanium" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#3a504b"/>
+      <stop offset="0.5" stop-color="#14201f"/>
+      <stop offset="1" stop-color="#030504"/>
+    </linearGradient>
+    <linearGradient id="mintGem" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#d7fff7"/>
+      <stop offset="0.4" stop-color="#35c7b6"/>
+      <stop offset="1" stop-color="#087066"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="30" stdDeviation="28" flood-color="#14201f" flood-opacity="0.23"/>
+    </filter>
+    <filter id="appShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="24" stdDeviation="20" flood-color="#07100f" flood-opacity="0.34"/>
+    </filter>
+    <style>
+      .bg { fill: #f7f8f4; }
+      .title { fill: #14201f; font: 900 48px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #14201f; font: 850 31px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .note { fill: #5f6f6a; font: 600 22px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .tag { fill: #0e766d; font: 900 17px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .08em; }
+    </style>
+  </defs>
+
+  <rect width="1900" height="1180" class="bg"/>
+  <text x="82" y="88" class="title">HomeOps Sentinel logo concepts, v6</text>
+  <text x="82" y="128" class="note">Stop drawing the house. Build a sanctuary symbol: simple, desirable, protective, and calm at App Store scale.</text>
+
+  <g transform="translate(86 190)">
+    <rect width="420" height="650" rx="46" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="36" y="62" class="label">01 Sanctuary</text>
+    <text x="36" y="98" class="note">Current lead</text>
+    <g transform="translate(60 146)" filter="url(#appShadow)">
+      <rect width="300" height="300" rx="72" fill="url(#nightGlass)"/>
+      <path d="M150 67 C205 67 238 111 238 164 C238 220 199 242 150 253 C101 242 62 220 62 164 C62 111 95 67 150 67 Z" fill="#f7f8f4"/>
+      <path d="M150 101 C189 101 210 131 210 166 C210 202 184 219 150 228 C116 219 90 202 90 166 C90 131 111 101 150 101 Z" fill="#14201f"/>
+      <circle cx="150" cy="170" r="22" fill="url(#mintGem)"/>
+    </g>
+    <text x="36" y="502" class="tag">FEEL</text>
+    <text x="36" y="534" class="note">A protected home presence without a roof, lock, or shield. The dot is the watchful intelligence.</text>
+  </g>
+
+  <g transform="translate(550 190)">
+    <rect width="420" height="650" rx="46" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="36" y="62" class="label">02 Haven</text>
+    <text x="36" y="98" class="note">Softest consumer route</text>
+    <g transform="translate(60 146)" filter="url(#appShadow)">
+      <rect width="300" height="300" rx="72" fill="url(#softCeramic)"/>
+      <path d="M150 64 C212 91 238 138 221 190 C205 239 101 239 79 190 C56 139 88 91 150 64 Z" fill="#ffffff"/>
+      <path d="M150 105 C192 125 208 154 197 185 C185 218 115 218 103 185 C92 154 108 125 150 105 Z" fill="#14201f"/>
+      <circle cx="150" cy="178" r="18" fill="url(#mintGem)"/>
+    </g>
+    <text x="36" y="502" class="tag">FEEL</text>
+    <text x="36" y="534" class="note">More plush, more wellness-adjacent. Security becomes comfort and enclosure.</text>
+  </g>
+
+  <g transform="translate(1014 190)">
+    <rect width="420" height="650" rx="46" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="36" y="62" class="label">03 Sentinel Core</text>
+    <text x="36" y="98" class="note">Most premium</text>
+    <g transform="translate(60 146)" filter="url(#appShadow)">
+      <rect width="300" height="300" rx="72" fill="url(#blackTitanium)"/>
+      <path d="M150 58 C205 93 232 132 232 176 C232 224 193 253 150 264 C107 253 68 224 68 176 C68 132 95 93 150 58 Z" fill="#f7f8f4"/>
+      <path d="M150 103 C188 128 206 153 206 181 C206 211 179 229 150 237 C121 229 94 211 94 181 C94 153 112 128 150 103 Z" fill="#14201f"/>
+      <circle cx="150" cy="181" r="20" fill="url(#mintGem)"/>
+    </g>
+    <text x="36" y="502" class="tag">FEEL</text>
+    <text x="36" y="534" class="note">The most executive and device-like. It could live beside serious productivity apps.</text>
+  </g>
+
+  <g transform="translate(1490 190)">
+    <rect width="270" height="650" rx="46" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="36" y="62" class="label">Scale</text>
+    <text x="36" y="98" class="note">Tiny icon test</text>
+    <g transform="translate(52 150)" filter="url(#appShadow)">
+      <rect width="96" height="96" rx="24" fill="url(#nightGlass)"/>
+      <path d="M48 20 C66 20 76 35 76 52 C76 70 63 78 48 82 C33 78 20 70 20 52 C20 35 30 20 48 20 Z" fill="#f7f8f4"/>
+      <path d="M48 32 C60 32 67 42 67 53 C67 65 58 70 48 73 C38 70 29 65 29 53 C29 42 36 32 48 32 Z" fill="#14201f"/>
+      <circle cx="48" cy="54" r="7" fill="#23b5a4"/>
+    </g>
+    <g transform="translate(52 286)" filter="url(#appShadow)">
+      <rect width="96" height="96" rx="24" fill="url(#softCeramic)"/>
+      <path d="M48 20 C68 29 77 44 71 61 C66 77 31 77 24 61 C17 44 28 29 48 20 Z" fill="#ffffff"/>
+      <path d="M48 33 C61 39 67 48 63 59 C59 69 37 69 33 59 C29 48 35 39 48 33 Z" fill="#14201f"/>
+      <circle cx="48" cy="57" r="6" fill="#23b5a4"/>
+    </g>
+    <g transform="translate(52 422)" filter="url(#appShadow)">
+      <rect width="96" height="96" rx="24" fill="url(#blackTitanium)"/>
+      <path d="M48 18 C66 30 75 42 75 56 C75 72 62 81 48 85 C34 81 21 72 21 56 C21 42 30 30 48 18 Z" fill="#f7f8f4"/>
+      <path d="M48 32 C60 40 66 48 66 57 C66 67 57 73 48 76 C39 73 30 67 30 57 C30 48 36 40 48 32 Z" fill="#14201f"/>
+    </g>
+  </g>
+
+  <g transform="translate(86 930)">
+    <text x="0" y="0" class="label">Decision</text>
+    <text x="0" y="42" class="note">Use Sanctuary. It finally stops looking like a smart-home utility and starts looking like a calm premium app.</text>
+  </g>
+</svg>
